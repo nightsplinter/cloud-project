@@ -15,3 +15,10 @@ repos:
         args: ["--test"]
         language: system
         files: \.(php)$
+  - repo: local
+    hooks:
+      - id: Larastan
+        name: Larastan
+        language: system
+        files: \.(php)$
+        entry: cd laravel && ./vendor/bin/phpstan analyse

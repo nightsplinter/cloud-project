@@ -75,3 +75,6 @@ pint-formatting: ## fix code formatting of Laravel Code
 
 show-pint-formatting: ## Show code formatting of Laravel Code
 	cd laravel && ./vendor/bin/pint --test
+
+check-larastan: ## check larastan
+	cd laravel && ./vendor/bin/phpstan analyse
