@@ -42,7 +42,7 @@ Durch den Pre-Commit-Hook werden automatisch Formatierungen, Linting-Regeln vor 
 Die Konfiguration befindet sich in der Datei [.pre-commit-config.yaml](/.pre-commit-config.yaml) und die
 Regeln von [Ruff](https://docs.astral.sh/ruff/) für den Linter und Formatter in der Datei [/.ruff.toml](etl/ruff.toml).
 
-# Checkstyle Commands
+# Checkstyle Commands (Python)
 
 1. Linting-Regeln überprüfen
 ```bash
@@ -57,4 +57,16 @@ Regeln von [Ruff](https://docs.astral.sh/ruff/) für den Linter und Formatter in
 3. Code formatieren
 ```bash
     ruff format
+```
+
+# Checkstyle Commands (Laravel)
+
+1. Code formatieren und automatisch beheben
+```bash
+    cd laravel && ./vendor/bin/pint
+```
+
+2. Code formatieren anzeigen
+```bash
+    cd laravel && ./vendor/bin/pint --test
 ```

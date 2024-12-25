@@ -67,3 +67,11 @@ linter-fix: ## run linter and fix (Python)
 
 format: ## run formatter (Python)
 	cd etl && ruff format
+
+# Code formatting Laravel
+
+pint-formatting: ## fix code formatting of Laravel Code
+	cd laravel && ./vendor/bin/pint
+
+show-pint-formatting: ## Show code formatting of Laravel Code
+	cd laravel && ./vendor/bin/pint --test
