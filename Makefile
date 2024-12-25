@@ -57,3 +57,13 @@ migrate-fresh: ## setup new database with seeder data
 test: ## run tests
 	$(sail) test
 
+# Checkstyle Python
+
+linter: ## run linter (Python)
+	cd etl && ruff check
+
+linter-fix: ## run linter and fix (Python)
+	cd etl && ruff check --fix
+
+format: ## run formatter (Python)
+	cd etl && ruff format

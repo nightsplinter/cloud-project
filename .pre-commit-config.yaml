@@ -1,0 +1,9 @@
+# For instructions on how to enable this hook run see `./README.md`
+# This script will run the Ruff linter and formatter on all python files.
+# It will also run the Laravel Pint linter on all PHP files.
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.7
+    hooks:
+      - id: ruff
+      - id: ruff-format

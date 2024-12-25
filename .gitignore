@@ -1,0 +1,14 @@
+# mypy cache directory
+.mypy_cache
+
+# Ruff cache directory
+.ruff_cache/
+
+# vscode directory
+.vscode/*
+
+# __pycache__ directory
+__pycache__/
+
+# .DS_Store files
+.DS_Store
