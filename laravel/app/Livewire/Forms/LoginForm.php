@@ -9,6 +9,7 @@ use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 use Livewire\Attributes\Validate;
 use Livewire\Form;
+use InvalidArgumentException;
 
 class LoginForm extends Form
 {
@@ -29,8 +30,13 @@ class LoginForm extends Form
     public function authenticate(): void
     {
         $this->ensureIsNotRateLimited();
+        $credentials = $this->only(['email', 'password']);
 
-        if (! Auth::attempt($this->only(['email', 'password']), $this->remember)) {
+        if (!is_array($credentials)) {
+            throw new InvalidArgumentException('Unexpected credentials type');
+        }
+
+        if (! Auth::attempt($credentials, $this->remember)) {
             RateLimiter::hit($this->throttleKey());
 
             throw ValidationException::withMessages([
