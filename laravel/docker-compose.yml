@@ -65,6 +65,7 @@ services:
         environment:
             - 'MONGODB_INITDB_ROOT_USERNAME=${MONGODB_USERNAME:-}'
             - 'MONGODB_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD:-}'
+            - 'MONGODB_DATABASE=${MONGODB_DATABASE:-my_database}'
         volumes:
             - 'sail-mongodb:/data/db'
         ports:
@@ -79,6 +80,17 @@ services:
                 - '--eval=db.runCommand({ping:1})'
             retries: 3
             timeout: 5s
+    adminer:
+      image: dockette/adminer:full
+      container_name: adminer
+      ports:
+        - '8000:80'
+      networks:
+        - sail
+      depends_on:
+        - mongodb
+        - pgsql
+
 networks:
     sail:
         driver: bridge
