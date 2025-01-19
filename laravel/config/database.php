@@ -112,6 +112,19 @@ return [
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
 
+        'mongodb' => [
+            'driver' => 'mongodb',
+            'dsn' => 'mongodb://'
+                . env('MONGODB_USERNAME', 'admin')
+                . ':'
+                . env('MONGODB_PASSWORD', 'password')
+                . '@'
+                . env('MONGODB_HOST', 'mongodb')
+                . ':'
+                . env('FORWARD_MONGODB_PORT', '27017')
+                . '/?directConnection=true',
+            'database' => env('MONGODB_DATABASE', 'recipes_and_ingredients'),
+        ],
     ],
 
     /*
