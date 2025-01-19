@@ -40,6 +40,7 @@ up-new: stop clean ## cleanup all: fresh git, fresh data, fresh containers
 	git fetch -a
 	git reset --hard origin/$(shell git rev-parse --abbrev-ref HEAD) || true
 	cd laravel && cp .env.example .env && composer install
+	cd laravel && npm install
 	make rebuild
 
 clean: ## delete container + data volumes
