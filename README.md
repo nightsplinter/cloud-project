@@ -70,3 +70,17 @@ Regeln von [Ruff](https://docs.astral.sh/ruff/) für den Linter und Formatter in
 ```bash
     cd laravel && ./vendor/bin/pint --test
 ```
+
+# Tests
+
+1. Um die Tests auszuführen, verwenden Sie den folgenden Befehl:
+
+```bash
+make test
+```
+
+2. Überprüfen Sie die Testabdeckung mit dem folgenden Befehl:
+
+```bash
+make test-coverage
+```
