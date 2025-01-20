@@ -22,3 +22,10 @@ repos:
         language: system
         files: \.(php)$
         entry: cd laravel && ./vendor/bin/phpstan analyse
+  - repo: local
+    hooks:
+      - id: code-coverage
+        name: Code Coverage
+        language: system
+        files: \.(php)$
+        entry: cd laravel && ./vendor/bin/sail test --coverage --min=60
