@@ -20,6 +20,8 @@ class IngredientFilterTable extends Component
     public $userPantryItems;
     public $allUserPantryItems;
 
+    public $search = '';
+
     public $noResults = false;
 
     public function mount($userPantryItems)
@@ -28,6 +30,11 @@ class IngredientFilterTable extends Component
         $this->allUserPantryItems = $userPantryItems;
         $this->categoryOptions = PantryItem::getUniqueUserCategories();
         array_unshift($this->categoryOptions, 'All');
+    }
+
+    public function updatedSearch()
+    {
+        $this->applyFilters();
     }
 
     public function updatedCategory()
@@ -59,6 +66,15 @@ class IngredientFilterTable extends Component
         $filteredItems = $this->applyExpirationDateFilter($filteredItems);
 
         $this->userPantryItems = $filteredItems;
+
+        if (isset($this->search) && strlen($this->search) > 0) {
+            $this->userPantryItems = array_filter($filteredItems,
+                function ($ingredient) {
+                    return str_contains(strtolower($ingredient['name']),
+                        strtolower($this->search));
+                });
+        }
+
         $this->noResults = empty($filteredItems);
     }
 

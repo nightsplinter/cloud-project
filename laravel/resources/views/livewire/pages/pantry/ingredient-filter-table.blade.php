@@ -6,7 +6,7 @@
             <!-- Search Bar -->
             <div class="flex-1">
                 <label for="search" class="block text-xs font-medium text-gray-600">Search</label>
-                <input type="text" id="search" title="Search for item"
+                <input type="text" id="search" title="Search for item" wire:model.live="search"
                     class="placeholder:italic px-4 py-1 rounded-lg border w-full focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
                     placeholder="Search for items...">
             </div>
