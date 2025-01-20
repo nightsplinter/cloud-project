@@ -1,6 +1,7 @@
 env           ?= $(shell basename `pwd`)
 composefile = ./laravel/docker-compose.yml
 sail = cd laravel && ./vendor/bin/sail
+codeCoveragePercent = 60
 
 .PHONY: help
 .DEFAULT_GOAL := help
@@ -56,6 +57,9 @@ migrate-fresh: ## setup new database with seeder data
 
 test: ## run tests
 	$(sail) test
+
+test-coverage: ## run tests with coverage
+	$(sail) test --coverage --min=$(codeCoveragePercent)
 
 # Checkstyle Python
 
