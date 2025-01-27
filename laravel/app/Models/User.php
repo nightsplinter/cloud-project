@@ -2,13 +2,13 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory;
@@ -48,11 +48,29 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * Get the pantry items associated with the user.
+     *
+     * @return HasMany<PantryItem, $this>
+     */
     public function pantryItems(): HasMany
     {
-        return $this->hasMany(PantryItem::class,
+        return $this->hasMany(
+            PantryItem::class,
             'user_id',
-            'id');
+            'id'
+        );
     }
 
+    /**
+     * Mark the user's email as verified.
+     *
+     * @return bool
+     */
+    public function markEmailAsVerified()
+    {
+        return $this->forceFill([
+            'email_verified_at' => $this->freshTimestamp()
+        ])->save();
+    }
 }
