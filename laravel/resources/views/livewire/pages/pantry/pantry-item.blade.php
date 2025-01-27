@@ -35,7 +35,7 @@
 
             {{-- Dropdown --}}
             @if(!empty($name) && !$isEntrySelected)
-                <div class="absolute z-10 bg-white border w-full rounded-lg shadow-md mt-1">
+                <div class="absolute z-10 bg-white border rounded-lg shadow-md mt-1">
                     @if(!empty($ingredients))
                         @foreach($ingredients as $index => $ingredient)
                             <div class="px-4 py-2 cursor-pointer {{ $highlightIndex === $index ? 'bg-lightgray' : '' }}"
@@ -66,7 +66,7 @@
                 <label for="unit" class="text-sm text-gray-600">Unit</label>
                 <select wire:model="unit" title="Unit"
                     class="px-4 py-1 rounded-lg border w-full focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
-                    <option value="" selected disabled
+                    <option value="" selected
                         class="text-gray-400">Select a unit</option>
                         @foreach ($units as $unit)
                             <option value="{{ $unit }}">{{ $unit }}</option>
@@ -84,7 +84,7 @@
         </div>
         <button type="submit" title="{{ is_null($item) ? 'Add Item' : 'Update Item' }}"
             class="px-4 py-1 text-center rounded-lg w-full bg-primary text-white border-none cursor-pointer">
-            @if (empty($item))
+            @if (is_null($item))
                 Add Item
             @else
                 Update Item

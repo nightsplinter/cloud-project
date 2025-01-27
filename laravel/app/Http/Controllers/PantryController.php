@@ -13,7 +13,7 @@ class PantryController extends Controller
 {
     /**
      * Display the pantry list.
-     * @return \Illuminate\Contracts\View\View
+     * @return View
      */
     public function index(): View
     {
@@ -26,22 +26,20 @@ class PantryController extends Controller
 
     /**
      * Add a new pantry item.
-     * @return \Illuminate\Contracts\View\View
+     * @return View
      */
     public function add(): View
     {
-        return view('pantry-item', [
-            'item' => [],
-        ]);
+        return view('pantry-item');
     }
 
     /**
      * Edit a pantry item by id.
-     * @return \Illuminate\Contracts\View\View
+     * @return View
      */
-    public function edit($id): View
+    public function edit(int $id): View
     {
-        $item = PantryItem::find($id);
+        $item = PantryItem::with('ingredient')->find($id);
 
         return view('pantry-item', [
             'item' => $item,
@@ -52,7 +50,7 @@ class PantryController extends Controller
      * Delete a pantry item by id.
      * @return \Illuminate\Http\RedirectResponse
      */
-    public function delete($id)
+    public function delete(int $id)
     {
         PantryItem::destroy($id);
 

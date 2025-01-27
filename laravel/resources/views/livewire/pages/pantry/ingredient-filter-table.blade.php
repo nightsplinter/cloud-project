@@ -67,10 +67,16 @@
                 @foreach ($userPantryItems as $item)
                 <tr>
                     <td class="pl-10 text-sm text-gray-600">
-                        {{$item['quantity'] . ' ' . $item['unit']}}
+                        {{
+                        $item['quantity']
+                            . ' '
+                            . (isset($item['unit_index']) ? $item['ingredient']['unit'][$item['unit_index']] : '')
+                        }}
                     </td>
-                    <td class="pl-10 text-sm text-gray-600">{{$item['name']}}</td>
-                    <td class="pl-10 text-sm text-gray-600">{{$item['expiration_date']}}</td>
+                    <td class="pl-10 text-sm text-gray-600">{{$item['ingredient']['name']}}</td>
+                    <td class="pl-10 text-sm text-gray-600">
+                        {{$item['expiration_date']}}
+                    </td>
                     <td>
                         <div class="flex flex-row items-baseline justify-center">
                             <a title="Edite" href="{{ route('pantry.edit', $item['id']) }}">

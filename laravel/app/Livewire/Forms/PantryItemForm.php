@@ -4,6 +4,7 @@ namespace App\Livewire\Forms;
 
 use App\Models\MongoDB\Ingredient;
 use App\Models\PantryItem;
+use Illuminate\View\View;
 use Livewire\Component;
 
 /**
@@ -14,145 +15,203 @@ class PantryItemForm extends Component
     /**
      * Indicates if an entry is selected from the search results.
      */
-    public $isEntrySelected = false;
+    public bool $isEntrySelected = false;
 
-    public $name;
+    public string $name = '';
 
-    public $unit = '';
+    public string $unit = '';
 
-    public $quantity;
+    public ?int $quantity = null;
 
-    public $expiration_date;
+    public string $expiration_date = '';
 
     /**
      * The ingredients that match the search query.
+     *
+     * @var array<array{name: string, picture: string, _id: string, unit: array<string>}>
      */
-    public $ingredients = [];
+    public array $ingredients = [];
 
     /**
      * The index of the highlighted ingredient in the search results.
      */
-    public $highlightIndex = 0;
+    public int $highlightIndex = 0;
 
-    public $units = [];
+    /**
+     * Available units for the selected ingredient
+     * @var array<mixed>
+     */
+    public array $units = [];
 
-    public $item;
+    /**
+     * The pantry item to edit.
+     * @var PantryItem|null
+     */
+    public ?PantryItem $item;
 
-    public function mount($item)
+    /**
+     * Mounts the component.
+     *
+     * @param PantryItem|null $item The pantry item to edit.
+     */
+    public function mount($item = null): void
     {
-        if (isset($item->id)) {
-            $this->name = $item->ingredient->name;
+        $this->item = $item;
+
+        if ($item instanceof PantryItem && $item->ingredient instanceof Ingredient) {
+
+            if (null !== $item->expiration_date) {
+                $this->expiration_date = $item->expiration_date;
+            }
+
+            if (null !== $item->quantity && is_int(value: $item->quantity)) {
+                $this->quantity = $item->quantity;
+            }
+
             $this->isEntrySelected = true;
-            $this->quantity = $item->quantity;
-            $this->unit = $item->unit;
-            $this->expiration_date = $item->expiration_date;
+
+            $unit_index = $item->unit_index;
+            $units = null;
+
+            if (isset($item->ingredient)) {
+                $name = $item->ingredient->getAttribute('name') ?? '';
+                $this->name = is_string($name) ? $name : '';
+                $units = $item->ingredient->getAttribute('unit') ?? [];
+            }
+
+            if (null !== $units && is_array($units)) {
+                $this->units = $units;
+                if (null !== $unit_index  && isset($units[$unit_index])) {
+                    $unitValue = $units[$unit_index];
+                    $this->unit = is_string($unitValue) ? $unitValue : '';
+                }
+            }
+
         }
     }
 
-    public function updatedName($value)
+    public function updatedName(string $value): void
     {
         $this->isEntrySelected = false;
-        if (strlen($value) < 2) {
+        if (mb_strlen($value) < 2) {
             $this->ingredients = [];
             return;
         }
 
-        $this->ingredients = Ingredient::where('name', 'like', '%'.$value.'%')
-            ->select('name', 'id', 'unit', 'picture')
+        /**
+         * @var array<array{name: string, picture: string, _id: string, unit: array<string>}>
+         */
+        $ingredients = Ingredient::where('name', 'like', '%' . $value . '%')
+            ->select('name', 'picture', '_id', 'unit')
             ->limit(5)
             ->orderBy('name', 'asc')
             ->get()
             ->toArray();
+
+        $this->ingredients = $ingredients;
         $this->highlightIndex = 0;
     }
 
-    public function incrementHighlight()
+    public function incrementHighlight(): void
     {
         if ($this->highlightIndex < count($this->ingredients) - 1) {
             $this->highlightIndex++;
         }
     }
 
-    public function decrementHighlight()
+    public function decrementHighlight(): void
     {
         if ($this->highlightIndex > 0) {
             $this->highlightIndex--;
         }
     }
 
-    public function selectIngredient($index = null)
+    public function selectIngredient(): void
     {
-        if ($index === null) {
-            $index = $this->highlightIndex;
-        }
+        $index = $this->highlightIndex;
 
         if (isset($this->ingredients[$index])) {
-            $this->name = $this->ingredients[$index]['name'];
+            $ingredient = $this->ingredients[$index];
+            $this->name = $ingredient['name'];
             $this->isEntrySelected = true;
-            $units = $this->ingredients[$index]['unit'];
-
-            if (is_array($units)) {
-                $this->units = $units;
-            }
+            $this->units = $ingredient['unit'];
         }
     }
 
-    public function resetIfInvalid()
+    public function resetIfInvalid(): void
     {
         $valid = collect($this->ingredients)
-            ->contains('name', $this->name);
+            ->pluck('name')
+            ->contains($this->name);
 
-        if (! $valid) {
+        if (!$valid) {
             $this->name = '';
             $this->ingredients = [];
             $this->units = [];
         }
     }
 
-    public function save()
+    /**
+     * Saves the pantry item to the database.
+     */
+    public function save(): void
     {
         $validated = $this->validate([
-            'name' => 'required|min:2|max:255',
-            'quantity' => 'min:1|numeric|nullable',
-            'unit' => 'min:1|nullable|max:255|in:'
-                .implode(',', $this->units),
+            'name' => 'required|min:2|max:255|',
+            'quantity' => 'min:1|numeric|nullable|required_with:unit',
+            'unit' => 'min:1|nullable|max:255|in:' . implode(',', $this->units),
             'expiration_date' => 'date|after:today|nullable',
         ]);
 
-        $selectedIngredient = Ingredient::where('name',
-            $validated['name'])->first();
+        /** @var Ingredient|null */
+        $selectedIngredient = Ingredient::where('name', $this->name)->first();
 
-        if (! $selectedIngredient) {
+        if (null === $selectedIngredient || empty($selectedIngredient->getAttribute('_id'))
+            || (null === $selectedIngredient->getAttribute('unit')
+            && !empty($this->unit))) {
             session()->flash('message', 'Ingredient not found.');
-
-            return;
+            $this->redirect('/ingredients');
         }
 
-        $ingredient_id = $selectedIngredient->id;
         $unit_index = null;
 
-        if (!is_null($selectedIngredient->units)) {
-            $unit_index = array_search($validated['unit'],
-                $selectedIngredient->units);
+        if (!empty($this->unit) && null !== $selectedIngredient
+            && is_array($selectedIngredient->getAttribute('unit'))) {
+            $unit_index = array_search(
+                $this->unit,
+                $selectedIngredient->getAttribute('unit')
+            );
+        }
+
+        $expiration_date = empty($this->expiration_date) ? null : $this->expiration_date;
+        $ingredientId = null;
+
+        if (null !== $selectedIngredient) {
+            $ingredientId = $selectedIngredient->getAttribute('_id');
         }
 
         $data = [
             'user_id' => auth()->id(),
-            'quantity' => $validated['quantity'],
-            'expiration_date' => $validated['expiration_date'],
-            'ingredient_id' => $ingredient_id,
+            'quantity' => $this->quantity,
+            'expiration_date' => $expiration_date,
+            'ingredient_id' => $ingredientId,
             'unit_index' => $unit_index,
         ];
 
-        if ($this->item) {
+        if (isset($this->item, $this->item->id)) {
             $this->item->update($data);
         } else {
             PantryItem::create($data);
         }
-        return redirect()->route('dashboard');
+
+        session()->flash('message', 'Pantry item successfully saved!');
+        $this->redirect('/dashboard');
     }
 
-    public function render()
+    /**
+     * Renders the component.
+     */
+    public function render(): View
     {
         return view('livewire.pages.pantry.pantry-item');
     }
