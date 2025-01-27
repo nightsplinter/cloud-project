@@ -82,4 +82,4 @@ show-pint-formatting: ## Show code formatting of Laravel Code
 	cd laravel && ./vendor/bin/pint --test
 
 check-larastan: ## check larastan
-	cd laravel && ./vendor/bin/phpstan analyse
+	cd laravel && ./vendor/bin/phpstan analyse --memory-limit=512M
