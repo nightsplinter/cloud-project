@@ -73,4 +73,15 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => $this->freshTimestamp()
         ])->save();
     }
+
+
+    /**
+     * Determine if the user is an analyst.
+     *
+     * @return bool
+     */
+    public function isAnalyst(): bool
+    {
+        return $this->analyst;
+    }
 }
