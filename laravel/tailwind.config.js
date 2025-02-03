@@ -28,6 +28,7 @@ export default {
             purple: '#9561E2', // Purple
             gray: '#6B7280', // Gray
             lightgray: '#E5E7EB', // Light Gray
+            lightgreen: '#007f4b', // Light Green
           },
         extend: {
             fontFamily: {
