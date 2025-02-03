@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Illuminate\Validation\ValidationException;
 use Livewire\Volt\Component;
+use App\Mail\PasswordUpdated;
 
 new class extends Component
 {
@@ -28,9 +29,14 @@ new class extends Component
             throw $e;
         }
 
-        Auth::user()->update([
+        /** @var \App\Models\User $user */
+        $user = Auth::user();
+
+        $user->update([
             'password' => Hash::make($validated['password']),
         ]);
+
+        Mail::to($user)->send(new PasswordUpdated($user));
 
         $this->reset('current_password', 'password', 'password_confirmation');
 
