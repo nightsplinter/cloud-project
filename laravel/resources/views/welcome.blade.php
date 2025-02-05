@@ -156,19 +156,6 @@
 
 
     <!-- Footer -->
-    <footer class="bg-gradient-to-b from-primary/60 to-primary overflow-hidden">
-        <div class="container mx-auto px-4">
-            <div class="grid md:grid-cols-4 gap-8">
-                <div>
-                    <h4 class="font-bold text-white text-xl mb-4">Recipe Finder</h4>
-                    <p class="text-white">Making sustainable cooking easy.</p>
-                </div>
-                <!-- Footer columns -->
-            </div>
-            <div class="border-t border-white mt-8 pb-2 pt-8 text-center text-white">
-                <p>&copy; {{ date('Y') }} Recipe Finder. All rights reserved.</p>
-            </div>
-        </div>
-    </footer>
+    <x-footer/>
 </body>
 </html>

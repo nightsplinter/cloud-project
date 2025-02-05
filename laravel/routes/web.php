@@ -5,6 +5,12 @@ use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');
 
+Route::view('imprint', 'imprint')
+    ->name('imprint');
+
+Route::view('privacypolicy', 'privacy-policy')
+    ->name('privacypolicy');
+
 Route::get('dashboard', [PantryController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
