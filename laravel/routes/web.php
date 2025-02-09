@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\PantryController;
+use App\Http\Controllers\RecipeController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');
@@ -8,7 +9,7 @@ Route::view('/', 'welcome');
 Route::view('imprint', 'imprint')
     ->name('imprint');
 
-Route::view('privacypolicy', 'privacy-policy')
+Route::view('privacypolicy', 'privacy.policy')
     ->name('privacypolicy');
 
 Route::get('dashboard', [PantryController::class, 'index'])
@@ -22,6 +23,18 @@ Route::get('ingredient', [PantryController::class, 'add'])
 Route::get('ingredient/{id}', [PantryController::class, 'edit'])
     ->middleware(middleware: ['auth', 'verified'])
     ->name('pantry.edit');
+
+Route::get('recipe', [RecipeController::class, 'add'])
+    ->middleware(middleware: ['auth', 'verified'])
+    ->name('recipe.add');
+
+Route::get('recipe/{id}', [RecipeController::class, 'edit'])
+    ->middleware(middleware: ['auth', 'verified'])
+    ->name('recipe.edit');
+
+Route::get('recipeFinder', [RecipeController::class, 'finder'])
+    ->middleware(middleware: ['auth', 'verified'])
+    ->name('recipe.finder');
 
 Route::view('profile', 'profile')
     ->middleware(middleware: ['auth'])
