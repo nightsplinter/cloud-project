@@ -27,6 +27,8 @@ class PantryTest extends TestCase
     public function test_dashboard_route_allows_authenticated_users(): void
     {
         $user = User::factory()->create();
+        $user->analyst = false;
+
         $response = $this->actingAs($user)->get('/dashboard');
         $response->assertStatus(200);
     }
@@ -47,6 +49,7 @@ class PantryTest extends TestCase
     public function test_ingredient_route_allows_authenticated_users(): void
     {
         $user = User::factory()->create();
+        $user->analyst = false;
 
         $response = $this->actingAs($user)->get('/ingredient');
         $response->assertStatus(200);
@@ -68,6 +71,7 @@ class PantryTest extends TestCase
     public function test_ingredient_id_route_allows_authenticated_users(): void
     {
         $user = User::factory()->create();
+        $user->analyst = false;
         Ingredient::unguard();
 
         $ingredient = Ingredient::create([

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PantryItem;
-use Illuminate\Contracts\View\View;
+use Illuminate\View\View;
 
 /**
  * This controller is responsible for handling pantry items.
