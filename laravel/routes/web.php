@@ -28,6 +28,10 @@ Route::get('recipe', [RecipeController::class, 'add'])
     ->middleware(middleware: ['auth', 'verified'])
     ->name('recipe.add');
 
+Route::get('recipe/detail/{id}', [RecipeController::class, 'detail'])
+    ->middleware(middleware: ['auth', 'verified'])
+    ->name('recipe.show');
+
 Route::get('recipe/{id}', [RecipeController::class, 'edit'])
     ->middleware(middleware: ['auth', 'verified'])
     ->name('recipe.edit');

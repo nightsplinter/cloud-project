@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\MongoDB\Recipe;
 use Illuminate\View\View;
 
 /**
@@ -38,6 +39,23 @@ class RecipeController extends Controller
      */
     public function finder(): View
     {
-        return view('recipe-finder');
+        $recipes = Recipe::withPantryMatches();
+        return view('recipe-finder', ['recipes' => $recipes]);
+    }
+
+    /**
+     * Show a recipe by id.
+     * @param String $id Base64 encoded _id of the recipe.
+     *
+     * @return View
+     */
+    public function detail(String $id): View
+    {
+        $convertId = base64_decode($id);
+        $recipe = Recipe::query()->find($convertId);
+
+        return view('recipe-detail', [
+            'recipe' => $recipe,
+        ]);
     }
 }
