@@ -1,0 +1,56 @@
+
+variables:
+  PRODUCTIONBRANCH: main
+  ETLDIRECTORY: "etl/**/*"
+  WEBDIRECTORY: "laravel/**/*"
+  TESTCOVERAGE: 60
+
+# Hidden yaml configuration that defines various restrictions
+.changes-in-web-directory: &changes-in-web-directory
+  rules:
+    - changes:
+        - $WEBDIRECTORY
+
+.changes-in-etl-directory: &changes-in-etl-directory
+  rules:
+    - changes:
+        - $ETLDIRECTORY
+
+stages:
+- check
+
+python-linter:
+    stage: check
+    tags:
+      - python
+    before_script:
+      - cd etl && pip install -r requirements-dev.txt
+    script:
+      - echo "Linting the python code"
+      - ruff check
+      - echo "Successfully linted the python code"
+    <<: *changes-in-etl-directory
+
+# laravel-pint:
+#     stage: check
+#     tags:
+#       - php
+#     before_script:
+#       - cd laravel && composer install
+#     script:
+#       - echo "Check the code formatting of the laravel code"
+#       - cd laravel && ./vendor/bin/pint --test
+#       - echo "Successfully checked the laravel code"
+#     <<: *changes-in-web-directory
+
+# larastan:
+#     stage: check
+#     tags:
+#       - php
+#     before_script:
+#       - cd laravel && composer install
+#     script:
+#       - echo "Check the static analysis of the laravel code"
+#       - cd laravel && ./vendor/bin/phpstan analyse --level=10
+#       - echo "Successfully checked the laravel code"
+#     <<: *changes-in-web-directory

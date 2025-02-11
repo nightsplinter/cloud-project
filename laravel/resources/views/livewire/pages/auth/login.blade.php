@@ -51,19 +51,27 @@ new #[Layout('layouts.guest')] class extends Component
         <!-- Remember Me -->
         <div class="block mt-4">
             <label for="remember" class="inline-flex items-center">
-                <input wire:model="form.remember" id="remember" type="checkbox" class="rounded dark:bg-gray-900 border-gray-300 dark:border-gray-700 text-indigo-600 shadow-sm focus:ring-indigo-500 dark:focus:ring-indigo-600 dark:focus:ring-offset-gray-800" name="remember">
-                <span class="ms-2 text-sm text-gray-600 dark:text-gray-400">{{ __('Remember me') }}</span>
+                <input wire:model="form.remember" id="remember" type="checkbox" class="rounded border-gray accent-primary text-primary shadow-sm" name="remember">
+                <span class="ms-2 text-sm text-gray dark:text-gray">{{ __('Remember me') }}</span>
             </label>
         </div>
 
-        <div class="flex items-center justify-end mt-4">
+        <div class="flex items-center justify-end mt-4 space-x-4">
             @if (Route::has('password.request'))
-                <a class="underline text-sm text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 rounded-md focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-gray-800" href="{{ route('password.request') }}" wire:navigate>
+                <x-underline-link title="{{ __('Forgot your password?') }}" href="{{ route('password.request') }}" >
                     {{ __('Forgot your password?') }}
-                </a>
+                </x-underline-link>
+
             @endif
 
-            <x-primary-button class="ms-3">
+            @if (Route::has('register'))
+                <x-underline-link title="{{ __('Register') }}" href="{{ route('register') }}">
+                    {{ __('Register') }}
+                </x-underline-link>
+
+            @endif
+
+            <x-primary-button title="{{ __('Log in') }}">
                 {{ __('Log in') }}
             </x-primary-button>
         </div>

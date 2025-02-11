@@ -1,0 +1,59 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\PantryItem;
+use Illuminate\View\View;
+
+/**
+ * This controller is responsible for handling pantry items.
+ *
+ */
+class PantryController extends Controller
+{
+    /**
+     * Display the pantry list.
+     * @return View
+     */
+    public function index(): View
+    {
+        $userPantryItems = PantryItem::getMappedUserPantryItems();
+
+        return view('pantrylist', [
+            'userPantryItems' => $userPantryItems,
+        ]);
+    }
+
+    /**
+     * Add a new pantry item.
+     * @return View
+     */
+    public function add(): View
+    {
+        return view('pantry-item');
+    }
+
+    /**
+     * Edit a pantry item by id.
+     * @return View
+     */
+    public function edit(int $id): View
+    {
+        $item = PantryItem::with('ingredient')->find($id);
+
+        return view('pantry-item', [
+            'item' => $item,
+        ]);
+    }
+
+    /**
+     * Delete a pantry item by id.
+     * @return \Illuminate\Http\RedirectResponse
+     */
+    public function delete(int $id)
+    {
+        PantryItem::destroy($id);
+
+        return redirect()->route('dashboard');
+    }
+}

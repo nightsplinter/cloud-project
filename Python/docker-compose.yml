@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  extractor:
+    build: .
+    command: python extract_data.py
+    volumes:
+      - ./Python:/app/data
+
+  etl:
+    build: .
+    command: python /app/src/etl.py
+    volumes:
+      - /Python/src:/app/src
+

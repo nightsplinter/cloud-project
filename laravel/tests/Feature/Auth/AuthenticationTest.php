@@ -57,6 +57,7 @@ class AuthenticationTest extends TestCase
     public function test_navigation_menu_can_be_rendered(): void
     {
         $user = User::factory()->create();
+        $user->analyst = false;
 
         $this->actingAs($user);
 
@@ -72,6 +73,7 @@ class AuthenticationTest extends TestCase
         $user = User::factory()->create();
 
         $this->actingAs($user);
+        $user->analyst = false;
 
         $component = Volt::test('layout.navigation');
 

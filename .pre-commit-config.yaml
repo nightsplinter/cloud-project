@@ -1,0 +1,31 @@
+# For instructions on how to enable this hook run see `./README.md`
+# This script will run the Ruff linter and formatter on all python files.
+# It will also run the Laravel Pint linter on all PHP files.
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.7
+    hooks:
+      - id: ruff
+      - id: ruff-format
+  - repo: local
+    hooks:
+      - id: laravel-pint
+        name: Laravel Pint
+        entry: cd laravel && ./vendor/bin/pint
+        args: ["--test"]
+        language: system
+        files: \.(php)$
+  - repo: local
+    hooks:
+      - id: Larastan
+        name: Larastan
+        language: system
+        files: \.(php)$
+        entry: cd laravel && ./vendor/bin/phpstan analyse
+  - repo: local
+    hooks:
+      - id: code-coverage
+        name: Code Coverage
+        language: system
+        files: \.(php)$
+        entry: cd laravel && ./vendor/bin/sail test --coverage --min=60

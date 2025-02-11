@@ -1,0 +1,4 @@
+apache-beam
+requests
+pymongo
+python-dotenv

@@ -1,11 +1,11 @@
 services:
     web-app:
         build:
-            context: './vendor/laravel/sail/runtimes/8.4'
+            context: ./vendor/laravel/sail/runtimes/8.4
             dockerfile: Dockerfile
             args:
                 WWWGROUP: '${WWWGROUP}'
-        image: 'sail-8.4/app'
+        image: sail-8.4/app
         container_name: web-app
         extra_hosts:
             - 'host.docker.internal:host-gateway'
@@ -59,10 +59,43 @@ services:
             - '${FORWARD_MAILPIT_DASHBOARD_PORT:-8025}:8025'
         networks:
             - sail
+    mongodb:
+        image: 'mongodb/mongodb-atlas-local:latest'
+        container_name: mongodb
+        environment:
+            - 'MONGODB_INITDB_ROOT_USERNAME=${MONGODB_USERNAME:-}'
+            - 'MONGODB_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD:-}'
+            - 'MONGODB_DATABASE=${MONGODB_DATABASE:-my_database}'
+        volumes:
+            - 'sail-mongodb:/data/db'
+        ports:
+            - '${FORWARD_MONGODB_PORT:-27017}:27017'
+        networks:
+            - sail
+        healthcheck:
+            test:
+                - CMD
+                - mongosh
+                - 'mongodb://localhost:27017/admin'
+                - '--eval=db.runCommand({ping:1})'
+            retries: 3
+            timeout: 5s
+    adminer:
+      image: dockette/adminer:full
+      container_name: adminer
+      ports:
+        - '8000:80'
+      networks:
+        - sail
+      depends_on:
+        - mongodb
+        - pgsql
+
 networks:
     sail:
         driver: bridge
-
 volumes:
     sail-pgsql:
+        driver: local
+    sail-mongodb:
         driver: local
