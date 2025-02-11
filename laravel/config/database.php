@@ -125,6 +125,12 @@ return [
                 . '/?directConnection=true',
             'database' => env('MONGODB_DATABASE', 'recipes_and_ingredients'),
         ],
+        'bigquery' => [
+            'driver' => 'bigquery',
+            'project_id' => env('GOOGLE_CLOUD_PROJECT_ID'),
+            'dataset' => env('BIGQUERY_DATASET'),
+            'location' => env('BIGQUERY_LOCATION', 'EU'),
+        ],
     ],
 
     /*

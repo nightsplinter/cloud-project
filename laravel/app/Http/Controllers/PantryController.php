@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PantryItem;
 use Illuminate\View\View;
+use App\Services\IngredientService;
 
 /**
  * This controller is responsible for handling pantry items.
@@ -17,7 +18,7 @@ class PantryController extends Controller
      */
     public function index(): View
     {
-        $userPantryItems = PantryItem::getMappedUserPantryItems();
+        $userPantryItems = new IngredientService()->getMappedUserPantryItems();
 
         return view('pantrylist', [
             'userPantryItems' => $userPantryItems,
@@ -39,7 +40,7 @@ class PantryController extends Controller
      */
     public function edit(int $id): View
     {
-        $item = PantryItem::with('ingredient')->find($id);
+        $item = new IngredientService()->findById($id);
 
         return view('pantry-item', [
             'item' => $item,
