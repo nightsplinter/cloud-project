@@ -15,6 +15,10 @@ __pycache__/
 
 # .mypy_cache
 .mypy_cache/
+
+# chunk files for the local etl
+etl/data/chunks/chunk_*
+
 /.idea
 /.phpunit.cache
 /node_modules
