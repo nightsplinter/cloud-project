@@ -62,17 +62,6 @@ test: ## run tests
 test-coverage: ## run tests with coverage
 	$(sail) test --coverage --min=$(codeCoveragePercent)
 
-# Checkstyle Python
-
-linter: ## run linter (Python)
-	cd etl && ruff check
-
-linter-fix: ## run linter and fix (Python)
-	cd etl && ruff check --fix
-
-format: ## run formatter (Python)
-	cd etl && ruff format
-
 # Code formatting Laravel
 
 pint-formatting: ## fix code formatting of Laravel Code
@@ -83,3 +72,14 @@ show-pint-formatting: ## Show code formatting of Laravel Code
 
 check-larastan: ## check larastan
 	cd laravel && ./vendor/bin/phpstan analyse --memory-limit=512M
+
+#################### Local formatting and linting for the local ETL script ####################
+
+linter: ## run linter (Python)
+	cd etl && ruff check
+
+linter-fix: ## run linter and fix (Python)
+	cd etl && ruff check --fix
+
+format: ## run formatter (Python)
+	cd etl && ruff format
