@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\MongoDB\Recipe;
 use App\Repositories\BigQueryRepository;
-use Illuminate\Pagination\LengthAwarePaginator;
 
 class RecipeService
 {
@@ -15,21 +14,6 @@ class RecipeService
         if (!app()->environment('local', 'testing')) {
             $this->bigQueryRepository = new BigQueryRepository('recipes');
         }
-    }
-
-    /**
-     * @return LengthAwarePaginator<Recipe>
-     */
-    public function getRecipesWithPantryMatches(): LengthAwarePaginator
-    {
-        if (app()->environment('local', 'testing')) {
-            /** @var LengthAwarePaginator<Recipe> */
-            return Recipe::withPantryMatches();
-        }
-
-        $queryResults = $this->bigQueryRepository->findWithPantryMatches();
-        // FIXME: Implement mapping logic
-        return new LengthAwarePaginator([], 0, 10);
     }
 
     public function findById(string $id): Recipe

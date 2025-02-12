@@ -39,8 +39,7 @@ class RecipeController extends Controller
      */
     public function finder(): View
     {
-        $recipes = new RecipeService()->getRecipesWithPantryMatches();
-        return view('recipe-finder', ['recipes' => $recipes]);
+        return view('recipe-finder');
     }
 
     /**
