@@ -37,16 +37,27 @@
                 <div class="bg-white rounded-xl shadow-sm p-6">
                     <h2 class="text-2xl font-semibold mb-6">Zubereitung</h2>
                     <div class="space-y-6">
-                        @foreach(eval("return $recipe->steps;") as $key => $step)
-                        <div class="flex gap-4">
-                            <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-white font-semibold">
-                                {{-- {{ $step }} --}}
+                        @if (is_string($recipe->steps))
+                            <div class="flex gap-1">
+                                <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-gray font-semibold">
+                                    1.
+                                </div>
+                                <div>
+                                    <p class="text-gray">{!! $recipe->steps !!}</p>
+                                </div>
                             </div>
-                            <div>
-                                <p class="text-gray">{{ $step }}</p>
+                        @else
+                            @foreach ($recipe->steps as $index => $step)
+                            <div class="flex gap-1">
+                                <div class="flex-shrink-0 w-8 h-8 rounded-full flex items-center justify-center text-gray font-semibold">
+                                    {{ $index + 1 }}.
+                                </div>
+                                <div>
+                                    <p class="text-gray">{{ $step }}</p>
+                                </div>
                             </div>
-                        </div>
-                        @endforeach
+                            @endforeach
+                        @endif
                     </div>
                 </div>
             </div>
@@ -54,26 +65,82 @@
             {{-- Right Column --}}
             <div class="space-y-8">
 
+                {{-- Matching Ingredients --}}
+                <div class="bg-white rounded-xl shadow-sm p-6">
+                    <h2 class="text-2xl font-semibold mb-4">Matching Ingredients</h2>
+                    <div class="flex flex-wrap gap-2">
+                        @if (is_array($recipe->matching_ingredients) && count($recipe->matching_ingredients) > 0)
+                            <div class="flex flex-wrap items-center text-sm gap-2 pt-2">
+                                @foreach ($recipe->matching_ingredients as $ingredient)
+                                    <span class="px-3 py-1 rounded-full text-sm flex items-center text-primary">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="fill-primary w-4 h-4 mr-1">
+                                            <!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+                                            <path d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"/>
+                                        </svg>
+                                        {{ $ingredient }}
+                                    </span>
+                                @endforeach
+                            </div>
+                        @else
+                            <span class="text-gray">No matching ingredients</span>
+                        @endif
+                    </div>
+                    {{-- Similar Ingredients --}}
+                    <h2 class="text-2xl font-semibold mb-4 pt-5">Similar Ingredients</h2>
+                    <div class="flex flex-wrap gap-2">
+                        @if (is_array($recipe->similar_matching_ingredients) && count($recipe->similar_matching_ingredients) > 0)
+                            <div class="flex flex-wrap items-center text-sm gap-2 pt-2">
+                                @foreach ($recipe->similar_matching_ingredients as $ingredient)
+                                    <span class="px-3 py-1 rounded-full text-sm flex items-center text-primary">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" class="fill-primary w-4 h-4 mr-1">
+                                            <!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
+                                            <path d="M438.6 105.4c12.5 12.5 12.5 32.8 0 45.3l-256 256c-12.5 12.5-32.8 12.5-45.3 0l-128-128c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0L160 338.7 393.4 105.4c12.5-12.5 32.8-12.5 45.3 0z"/>
+                                        </svg>
+                                        {{ $ingredient }}
+                                    </span>
+                                @endforeach
+                            </div>
+                        @else
+                            <span class="text-gray">No similar ingredients</span>
+                        @endif
+
+                    </div>
+
+                </div>
+
                 {{-- Ingredients --}}
                 <div class="bg-white rounded-xl shadow-sm p-6">
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-2xl font-semibold">Ingredients</h2>
-                        {{var_dump()}}
                     </div>
                     <ul class="space-y-3">
-                        {{-- @foreach($recipe->raw_str as $ingredient) --}}
-                        <li class="flex items-center justify-between p-0.5 rounded">
-                            <span class="flex items-center gap-2">
-                                {{-- @if($ingredient['available'])
-                                <svg class="w-5 h-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                </svg>
-                                @endif --}}
-                                {{-- {{ $ingredient }} --}}
-                            </span>
-                            {{-- <span class="text-gray">{{ $ingredient['amount'] }}</span> --}}
-                        </li>
-                        {{-- @endforeach --}}
+                        @if (is_array($recipe->raw_str))
+                            @foreach($recipe->raw_str as $key => $ingredient)
+
+                            @if (empty($ingredient))
+                                @continue
+                            @endif
+
+                            <li class="flex items-center justify-between p-0.5 rounded">
+                                <span class="flex items-center gap-2">
+                                    <div class="w-8 h-8">
+                                        @foreach($recipe->ingredient_pictures as $key => $picture)
+                                            @if(!is_null($picture) && str_contains($ingredient, $key))
+                                                <div class="w-full h-full rounded-full border border-lightgray">
+                                                    <img src="{{ $picture }}"
+                                                         alt="{{ $ingredient }}"
+                                                         title="{{ $ingredient }}"
+                                                         class="w-full h-full rounded-full object-cover">
+                                                </div>
+                                                @break
+                                            @endif
+                                        @endforeach
+                                    </div>
+                                    {{ preg_replace('/\\\\u[0-9A-F]{4}/i', "'", $ingredient) }}
+                                </span>
+                            </li>
+                            @endforeach
+                        @endIf
                     </ul>
                 </div>
 
