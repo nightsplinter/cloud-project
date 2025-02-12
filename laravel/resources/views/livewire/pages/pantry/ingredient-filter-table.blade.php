@@ -1,120 +1,121 @@
-<div class="p-6 rounded-lg bg-white">
+<div class="mx-auto bg-white rounded-2xl shadow-sm p-5 space-y-9">
     {{-- Filters --}}
-    <div class="mb-6">
-        <div class="flex space-x-4 justify-center items-center">
-
-            <!-- Search Bar -->
-            <div class="flex-1">
-                <label for="search" class="block text-xs font-medium text-gray-600">Search</label>
-                <input type="text" id="search" title="Search for item" wire:model.live="search"
-                    class="placeholder:italic px-4 py-1 rounded-lg border w-full focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+        <!-- Search Bar -->
+        <div class="lg:col-span-4">
+            <label for="search" class="block text-sm font-medium text-gray mb-2">Search Items</label>
+            <div class="relative">
+                <input type="text" id="search" wire:model.live="search"
+                    class="w-full pl-10 pr-4 py-2.5 rounded-xl border-gray focus:border-primary focus:ring-primary transition-colors duration-200"
                     placeholder="Search for items...">
-            </div>
-
-            <!-- Category and Expiration Date Filters -->
-            <div class="flex-1 flex space-x-4">
-                <!-- Category Dropdown -->
-                <div class="w-1/2">
-                    <label for="category" class="block text-xs font-medium text-gray-600">Category</label>
-                    <select title="Filter by category" wire:model.live="category"
-                        class="px-4 py-1 text-center rounded-lg border w-full focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-                        id="category">
-                        @foreach($categoryOptions as $option)
-                        <option value="{{$option}}">
-                            {{ $option }}
-                        </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <!-- Expiration Date Dropdown -->
-                <div class="w-2/3">
-                    <label for="expirationDate" class="block text-xs font-medium text-gray-600">Expiration Date</label>
-                    <select title="Filter by expirationDate" wire:model.live="expirationDate"
-                        class="px-4 py-1 text-center rounded-lg border w-full focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary">
-                        @foreach($expirationDateOptions as $key => $option)
-                        <option value="{{$key}}">
-                            {{ $option }}
-                        </option>
-                        @endforeach
-                    </select>
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-5 w-5 text-gray" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                    </svg>
                 </div>
             </div>
+        </div>
 
-            {{-- Add Item Button --}}
-            <div class="flex-none items-baseline">
-                <label for="expirationFilter" class="block invisible text-xs font-medium text-gray-600">Add Item</label>
-                <a title="Add Item" href="{{ route('pantry.add') }}"
-                    class="px-4 py-1 text-center rounded-lg w-full bg-primary text-white border-none cursor-pointer">
-                    Add Item
-                </a>
-            </div>
+        <!-- Category Dropdown -->
+        <div class="lg:col-span-3">
+            <label for="category" class="block text-sm font-medium text-gray mb-2">Category</label>
+            <select wire:model.live="category"
+                class="w-full py-2.5 px-4 rounded-xl border-gray focus:border-primary focus:ring-primary transition-colors duration-200">
+                @foreach($categoryOptions as $option)
+                <option value="{{$option}}">{{ $option }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <!-- Expiration Date Dropdown -->
+        <div class="lg:col-span-3">
+            <label for="expirationDate" class="block text-sm font-medium text-gray mb-2">Expiration Date</label>
+            <select wire:model.live="expirationDate"
+                class="w-full py-2.5 px-4 rounded-xl border-gray focus:border-primary focus:ring-primary transition-colors duration-200">
+                @foreach($expirationDateOptions as $key => $option)
+                <option value="{{$key}}">{{ $option }}</option>
+                @endforeach
+            </select>
+        </div>
+
+        <!-- Add Item Button -->
+        <div class="lg:col-span-2 flex items-end">
+            <a href="{{ route('pantry.add') }}" title="Add Item"
+                class="w-full bg-primary hover:bg-lightgreen text-white py-2.5 px-4 rounded-xl transition-colors duration-200 flex items-center justify-center space-x-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+                </svg>
+                <span>Add Item</span>
+            </a>
         </div>
     </div>
 
     {{-- Items Table --}}
-    <div class="overflow-scroll pt-8 pb-5">
-        <table class="w-2/3 mx-auto border-collapse bg-white table-auto">
-            <thead class="bg-lightgray">
-                <tr>
-                    <th class="text-sm font-medium text-gray-600 p-2">Quantity</th>
-                    <th class="text-sm font-medium text-gray-600 p-2">Name</th>
-                    <th class="text-sm font-medium text-gray-600 p-2">Expiration date</th>
-                    <th class="text-sm font-medium text-gray-600 p-2">Actions</th>
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead>
+                <tr class="bg-gray-50 border-b border-lightgray">
+                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray">Quantity</th>
+                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray">Name</th>
+                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray">Expiration Date</th>
+                    <th class="px-6 py-4 text-right text-sm font-semibold text-gray">Actions</th>
                 </tr>
             </thead>
-            <tbody>
-                @foreach ($userPantryItems as $item)
+            <tbody class="divide-y divide-gray">
+                @foreach ($items as $item)
                 <tr>
-                    <td class="pl-10 text-sm text-gray-600">
-                        {{
-                        $item['quantity']
-                            . ' '
-                            . (isset($item['unit_index']) ? $item['ingredient']['unit'][$item['unit_index']] : '')
-                        }}
+                    <td class="px-6 py-4 text-sm text-gray">
+                        {{$item['quantity'] . ' ' . (isset($item['unit_index']) ? $item['ingredient']['unit'][$item['unit_index']] : '')}}
                     </td>
-                    <td class="pl-10 text-sm text-gray-600">{{$item['ingredient']['name']}}</td>
-                    <td class="pl-10 text-sm text-gray-600">
+                    <td class="px-6 py-4 text-sm text-gray">
+                        {{$item['ingredient']['name']}}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-gray">
                         {{$item['expiration_date']}}
                     </td>
-                    <td>
-                        <div class="flex flex-row items-baseline justify-center">
-                            <a title="Edite" href="{{ route('pantry.edit', $item['id']) }}">
-                            <span class="cursor-pointer">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"
-                                    class="w-4 h-4 m-2">
-                                    <!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
-                                    <path
-                                        d="M410.3 231l11.3-11.3-33.9-33.9-62.1-62.1L291.7 89.8l-11.3 11.3-22.6 22.6L58.6 322.9c-10.4 10.4-18 23.3-22.2 37.4L1 480.7c-2.5 8.4-.2 17.5 6.1 23.7s15.3 8.5 23.7 6.1l120.3-35.4c14.1-4.2 27-11.8 37.4-22.2L387.7 253.7 410.3 231zM160 399.4l-9.1 22.7c-4 3.1-8.5 5.4-13.3 6.9L59.4 452l23-78.1c1.4-4.9 3.8-9.4 6.9-13.3l22.7-9.1 0 32c0 8.8 7.2 16 16 16l32 0zM362.7 18.7L348.3 33.2 325.7 55.8 314.3 67.1l33.9 33.9 62.1 62.1 33.9 33.9 11.3-11.3 22.6-22.6 14.5-14.5c25-25 25-65.5 0-90.5L453.3 18.7c-25-25-65.5-25-90.5 0zm-47.4 168l-144 144c-6.2 6.2-16.4 6.2-22.6 0s-6.2-16.4 0-22.6l144-144c6.2-6.2 16.4-6.2 22.6 0s6.2 16.4 0 22.6z" />
+                    <td class="px-6 py-4 text-right">
+                        <div class="flex items-center justify-end space-x-3">
+                            <a href="{{ route('pantry.edit', $item['id']) }}" title="Edit Item"
+                                class="text-gray hover:text-primary transition-colors duration-200">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
                                 </svg>
-                            </span>
-                        </a>
-                        <a wire:click.prevent="delete({{$item['id']}})" wire:confirm="Are you sure you want to delete this item?" href="#">
-                        <span title="Delete" class="cursor-pointer">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"
-                                    class="w-4 h-4 text-red m-2">
-                                    <!--!Font Awesome Free 6.7.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free Copyright 2025 Fonticons, Inc.-->
-                                    <path fill="currentColor"
-                                        d="M170.5 51.6L151.5 80l145 0-19-28.4c-1.5-2.2-4-3.6-6.7-3.6l-93.7 0c-2.7 0-5.2 1.3-6.7 3.6zm147-26.6L354.2 80 368 80l48 0 8 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-8 0 0 304c0 44.2-35.8 80-80 80l-224 0c-44.2 0-80-35.8-80-80l0-304-8 0c-13.3 0-24-10.7-24-24S10.7 80 24 80l8 0 48 0 13.8 0 36.7-55.1C140.9 9.4 158.4 0 177.1 0l93.7 0c18.7 0 36.2 9.4 46.6 24.9zM80 128l0 304c0 17.7 14.3 32 32 32l224 0c17.7 0 32-14.3 32-32l0-304L80 128zm80 64l0 208c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-208c0-8.8 7.2-16 16-16s16 7.2 16 16zm80 0l0 208c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-208c0-8.8 7.2-16 16-16s16 7.2 16 16zm80 0l0 208c0 8.8-7.2 16-16 16s-16-7.2-16-16l0-208c0-8.8 7.2-16 16-16s16 7.2 16 16z" />
-                                </svg>
-                            </span>
                             </a>
+                            <button wire:click="delete({{$item['id']}})" title="Delete Item"
+                                    wire:confirm="Are you sure you want to delete this item?"
+                                    class="text-gray hover:text-red transition-colors duration-200">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                            </button>
                         </div>
                     </td>
                 </tr>
                 @endforeach
-                @if (empty($userPantryItems))
-                    <tr>
-                        <td colspan="4" class="text-center text-sm text-gray-600 p-3 text-primary">
-                            @if ($noResults)
-                                No results found
-                            @else
-                                Your pantry is empty. Add some items!
-                            @endif
-                        </td>
-                    </tr>
+
+                @if (count($items) == 0)
+                <tr>
+                    <td colspan="4" class="px-6 py-8 text-center">
+                        <div class="flex flex-col items-center justify-center space-y-3">
+                            <svg class="w-12 h-12 text-gray" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                            </svg>
+                            <p class="text-gray text-sm">
+                                @if ($noResults)
+                                    No results found for your search
+                                @else
+                                    Your pantry is empty. Start by adding some items!
+                                @endif
+                            </p>
+                        </div>
+                    </td>
+                </tr>
                 @endif
             </tbody>
         </table>
     </div>
+        <!-- Pagination -->
+        <div class="mt-8 justify-center flex items-center">
+            {{ $items->links('vendor.pagination.tailwind') }}
+        </div>
 </div>

@@ -18,11 +18,7 @@ class PantryController extends Controller
      */
     public function index(): View
     {
-        $userPantryItems = new IngredientService()->getMappedUserPantryItems();
-
-        return view('pantrylist', [
-            'userPantryItems' => $userPantryItems,
-        ]);
+        return view('pantrylist');
     }
 
     /**

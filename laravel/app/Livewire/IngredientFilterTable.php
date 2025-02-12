@@ -5,9 +5,12 @@ namespace App\Livewire;
 use App\Models\PantryItem;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
+use Livewire\WithPagination;
 
 class IngredientFilterTable extends Component
 {
+    use WithPagination;
+
     /** @var array<string, string> */
     public array $expirationDateOptions = [
         'all' => 'All',
@@ -22,26 +25,18 @@ class IngredientFilterTable extends Component
 
     public string $expirationDate = 'all';
     public string $category = 'All';
-
-    /** @var array<int, array<string, mixed>> */
-    public array $userPantryItems = [];
-
-    /** @var array<int, array<string, mixed>> */
-    public array $allUserPantryItems = [];
-
     public string $search = '';
     public bool $noResults = false;
 
-    /**
-     * Initialize the component.
-     *
-     * @param array<int, array<string, mixed>> $userPantryItems
-     */
-    public function mount(array $userPantryItems): void
-    {
-        $this->userPantryItems = $userPantryItems;
-        $this->allUserPantryItems = $userPantryItems;
+    /** @var array<string, array<string, string>> */
+    protected $queryString = [
+        'search' => ['except' => ''],
+        'category' => ['except' => 'All'],
+        'expirationDate' => ['except' => 'all'],
+    ];
 
+    public function mount(): void
+    {
         /** @var array<int, string> */
         $categories = PantryItem::getUniqueUserCategories();
 
@@ -49,111 +44,18 @@ class IngredientFilterTable extends Component
         array_unshift($this->categoryOptions, 'All');
     }
 
-    public function updatedSearch(): void
-    {
-        $this->applyFilters();
-    }
-
-    public function updatedCategory(): void
-    {
-        $this->applyFilters();
-    }
-
-    public function updatedExpirationDate(): void
-    {
-        $this->applyFilters();
-    }
-
     /**
-     * Apply all active filters on the pantry items.
+     * Updating the search, category, and expirationDate properties
+     * @param string $name
+     * @return void
      */
-    public function applyFilters(): void
+    public function updating(string $name): void
     {
-        $filteredItems = $this->allUserPantryItems;
-
-        if (isset($this->category) && 'All' !== $this->category) {
-            $filteredItems = array_filter(
-                $filteredItems,
-                fn (array $ingredient): bool => isset($ingredient['ingredient'])
-                        && is_array($ingredient['ingredient'])
-                        && is_array($ingredient['ingredient']['categories'])
-                        && in_array($this->category, $ingredient['ingredient']['categories'], true)
-            );
-        }
-
-        $filteredItems = $this->applyExpirationDateFilter($filteredItems);
-        $this->userPantryItems = $filteredItems;
-
-        if (isset($this->search) && mb_strlen($this->search) > 0) {
-            $this->userPantryItems = array_filter(
-                $filteredItems,
-                fn (array $ingredient): bool => isset($ingredient['ingredient'])
-                        && is_array($ingredient['ingredient'])
-                        && is_string($ingredient['ingredient']['name'])
-                        && str_contains(
-                            mb_strtolower($ingredient['ingredient']['name']),
-                            mb_strtolower($this->search)
-                        )
-            );
-        }
-        $this->noResults = empty($filteredItems);
-    }
-
-    /**
-     * Apply expiration date filter.
-     *
-     * @param array<int, array<string, mixed>> $items
-     * @return array<int, array<string, mixed>>
-     */
-    private function applyExpirationDateFilter(array $items): array
-    {
-        $now = now();
-
-        switch ($this->expirationDate) {
-            case 'expired':
-                return array_filter(
-                    $items,
-                    fn (array $item): bool => isset($item['expiration_date'])
-                            && is_string($item['expiration_date'])
-                            && mb_strlen($item['expiration_date']) > 0
-                            && $item['expiration_date'] < $now
-                );
-
-            case 'expiring':
-                return array_filter(
-                    $items,
-                    fn (array $item): bool => isset($item['expiration_date'])
-                            && is_string($item['expiration_date'])
-                            && mb_strlen($item['expiration_date']) > 0
-                            && $item['expiration_date'] < $now->addDays(7)
-                );
-
-            case 'not-expiring':
-                return array_filter(
-                    $items,
-                    fn (array $item): bool => isset($item['expiration_date'])
-                            && is_string($item['expiration_date'])
-                            && mb_strlen($item['expiration_date']) > 0
-                            && $item['expiration_date'] > $now->addDays(7)
-                );
-
-            case 'none':
-                return array_filter(
-                    $items,
-                    fn (array $item): bool => !isset($item['expiration_date'])
-                            || !is_string($item['expiration_date'])
-                            || 0 === mb_strlen($item['expiration_date'])
-                );
-
-            case 'all':
-            default:
-                return $items;
+        if ('search' === $name || 'category' === $name || 'expirationDate' === $name) {
+            $this->resetPage();
         }
     }
 
-    /**
-     * Delete a pantry item.
-     */
     public function delete(int $itemId): void
     {
         $item = PantryItem::find($itemId);
@@ -165,6 +67,79 @@ class IngredientFilterTable extends Component
 
     public function render(): View
     {
-        return view('livewire.pages.pantry.ingredient-filter-table');
+        $query = PantryItem::query()
+            ->where('user_id', auth()->id());
+
+        // Expiration Date Filter
+        $now = now()->startOfDay();
+        switch ($this->expirationDate) {
+            case 'expired':
+                $query->whereNotNull('expiration_date')
+                    ->whereDate('expiration_date', '<', $now);
+                break;
+            case 'expiring':
+                $query->whereNotNull('expiration_date')
+                    ->whereDate('expiration_date', '<=', $now->copy()->addDays(7))
+                    ->whereDate('expiration_date', '>', $now);
+                break;
+            case 'not-expiring':
+                $query->whereNotNull('expiration_date')
+                    ->whereDate('expiration_date', '>', $now->copy()->addDays(7));
+                break;
+            case 'none':
+                $query->whereNull('expiration_date');
+                break;
+        }
+
+        $items = $query->get();
+
+        // Category and Search Filter
+        if ('All' !== $this->category || !empty($this->search)) {
+            $items = $items->filter(function ($item) {
+                $ingredient = $item->ingredient;
+
+                if (is_null($ingredient)) {
+                    return false;
+                }
+
+                $ingredient = $ingredient->toArray();
+
+                /** @var array<int, string> */
+                $categories = $ingredient['categories'];
+
+                // Category Filter
+                if ('All' !== $this->category ||
+                    !in_array($this->category, $categories)) {
+                    return false;
+                }
+
+                /** @var string */
+                $name = $ingredient['name'];
+
+                return !(!empty($this->search) ||
+                    !str_contains(mb_strtolower($name), mb_strtolower($this->search)));
+            });
+        }
+
+        /** @var int */
+        $page = request()->get('page', 1);
+
+        /** @var int */
+        $perPage = 10;
+
+        $items = new \Illuminate\Pagination\LengthAwarePaginator(
+            $items->forPage($page, $perPage),
+            $items->count(),
+            $perPage,
+            $page,
+            ['path' => request()->url()]
+        );
+
+        $this->noResults = $items->isEmpty();
+
+        return view('livewire.pages.pantry.ingredient-filter-table', [
+            'items' => $items,
+        ]);
     }
+
 }

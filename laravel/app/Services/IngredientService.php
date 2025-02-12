@@ -17,22 +17,6 @@ class IngredientService
     }
 
     /**
-     * Get all pantry items with their ingredient matches
-     *
-     * @return array<mixed>
-     */
-    public function getMappedUserPantryItems(): array
-    {
-        if (app()->environment('local', 'testing')) {
-            return PantryItem::getMappedUserPantryItems();
-        }
-
-        $queryResults = $this->bigQueryRepository->findWithPantryMatches();
-        //FIXME: Implement mapping logic
-        return [];
-    }
-
-    /**
      * Find pantry item by id
      *
      * @param int $id Pantry item id

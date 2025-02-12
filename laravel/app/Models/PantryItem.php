@@ -6,6 +6,7 @@ use App\Models\MongoDB\Ingredient;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Collection;
+use Date;
 
 /**
  * @property-read Ingredient|null $ingredient
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\Collection;
  * @property int $id
  * @property int $user_id
  * @property float|int $quantity
- * @property string|null $expiration_date
+ * @property Date|null $expiration_date
  * @property string $ingredient_id
  * @property int|null $unit_index
  */
@@ -56,18 +57,6 @@ class PantryItem extends Model
             'user_id',
             'id'
         );
-    }
-
-    /**
-     * Returns the pantry items of the authenticated user.
-     * @return array<mixed>
-     */
-    public static function getMappedUserPantryItems(): array
-    {
-        return self::where('user_id', auth()->id())
-            ->with('ingredient')
-            ->get()
-            ->toArray();
     }
 
     /**
