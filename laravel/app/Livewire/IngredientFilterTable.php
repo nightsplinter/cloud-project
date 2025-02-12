@@ -11,6 +11,9 @@ class IngredientFilterTable extends Component
 {
     use WithPagination;
 
+    /** @var string */
+    protected $paginationTheme = 'custom-tailwind';
+
     /** @var array<string, string> */
     public array $expirationDateOptions = [
         'all' => 'All',
@@ -98,7 +101,7 @@ class IngredientFilterTable extends Component
             $items = $items->filter(function ($item) {
                 $ingredient = $item->ingredient;
 
-                if (is_null($ingredient)) {
+                if (null === $ingredient) {
                     return false;
                 }
 
