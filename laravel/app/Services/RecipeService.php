@@ -5,7 +5,6 @@ namespace App\Services;
 use App\Models\MongoDB\Recipe;
 use App\Repositories\BigQueryRepository;
 use Illuminate\Pagination\LengthAwarePaginator;
-use RuntimeException;
 
 class RecipeService
 {
@@ -36,13 +35,7 @@ class RecipeService
     public function findById(string $id): Recipe
     {
         if (app()->environment('local', 'testing')) {
-            $recipe = Recipe::query()->find($id);
-
-            if (!$recipe) {
-                throw new RuntimeException('Recipe not found');
-            }
-
-            return $recipe;
+            return new Recipe()->getRecipeByIdWithPantryMatches($id);
         }
 
         $queryResult = $this->bigQueryRepository->findRecipeById($id);

@@ -22,7 +22,12 @@
                             @endif
                             <div class="absolute top-2 right-2">
                                 <span class="bg-primary text-white px-3 py-1 rounded-full text-sm">
-                                    {{$recipe->matching_ingredients}} Matches
+                                    {{count($recipe->similar_matching_ingredients)}} Similar Matches
+                                </span>
+                            </div>
+                            <div class="absolute top-12 right-2">
+                                <span class="bg-lightgreen text-white px-3 py-1 rounded-full text-sm">
+                                    {{count($recipe->matching_ingredients)}} Matches
                                 </span>
                             </div>
                         </div>
@@ -61,7 +66,7 @@
 
                             @if (is_array($recipe->categories))
                                 <div class="flex flex-wrap items-center text-sm gap-2 pt-2">
-                                    @foreach ($recipe->categories as $category)
+                                    @foreach (collect($recipe->categories)->take(5) as $category)
                                         <span class="bg-gray text-white px-2 py-1 rounded-full">
                                             {{ $category }}
                                         </span>
