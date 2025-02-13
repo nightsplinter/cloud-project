@@ -34,5 +34,8 @@ return [
             'channel' => env('SLACK_BOT_USER_DEFAULT_CHANNEL'),
         ],
     ],
+    'spoonacular' => [
+        'api_key' => env('PIPELINE_APIKEY'),
+    ],
 
 ];
