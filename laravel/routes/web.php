@@ -2,6 +2,8 @@
 
 use App\Http\Controllers\PantryController;
 use App\Http\Controllers\RecipeController;
+use App\Http\Controllers\AnalystController;
+use App\Http\Middleware\EnsureUserIsAnalyst;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome');
@@ -43,5 +45,13 @@ Route::get('recipeFinder', [RecipeController::class, 'finder'])
 Route::view('profile', 'profile')
     ->middleware(middleware: ['auth'])
     ->name('profile');
+
+Route::get('analysis', [AnalystController::class, 'index'])
+    ->middleware(middleware: ['auth', 'verified', EnsureUserIsAnalyst::class])
+    ->name('analysis');
+
+Route::post('analysis', [AnalystController::class, 'runCommand'])
+    ->middleware(middleware: ['auth', 'verified', EnsureUserIsAnalyst::class])
+    ->name('analysis.runCommand');
 
 require __DIR__ . '/auth.php';

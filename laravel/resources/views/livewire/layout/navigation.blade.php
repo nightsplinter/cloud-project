@@ -40,13 +40,9 @@ new class extends Component
 
                 @if(Auth::user()->isAnalyst())
                     <x-nav-link
-                        :href="route('analysis.index')"  title="Data Analysis"
-                        :active="request()->routeIs('analysis.index')" wire:navigate>
-                        Data Analysis
-                    </x-nav-link>
-                    <x-nav-link :href="route('analysis.index')" title="ETL-Process"
-                        :active="request()->routeIs('analysis.index')" wire:navigate>
-                        ETL-Process
+                        :href="route('analysis')"  title="Analysis"
+                        :active="request()->routeIs('analysis')" wire:navigate>
+                        Analysis
                     </x-nav-link>
                 @endif
 
