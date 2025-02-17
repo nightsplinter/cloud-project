@@ -19,6 +19,13 @@ __pycache__/
 # chunk files for the local etl
 etl/data/chunks/chunk_*
 
+# Ansible password file
+.vault_pass.txt
+
+# Ansible env file
+.env.j2
+
+# Other files/directories
 /.idea
 /.phpunit.cache
 /node_modules
@@ -44,6 +51,3 @@ yarn-error.log
 /.zed
 /env
 /env/
-
-
-
