@@ -1,0 +1,21 @@
+# This file contains the variables for the recipe_finder_vm group
+# IMPORTANT: Only store non-sensitive variables here and store sensitive variables in vault.yml
+# DON'T FORGET TO ENCRYPT vault.yml BEFORE COMMITTING TO GIT
+
+# Password for the VM
+vm_password: "{{vm_password}}"
+
+# Application specific variables
+app_name: "recipe-finder"
+laravel_path: "/var/www/{{ app_name }}/laravel"
+project_path: "/var/www/{{ app_name }}"
+
+# Gitlab variables
+gitlab_username: "{{gitlab_username}}"
+gitlab_token: "{{gitlab_token}}"
+gitlab_repo_url: "https://oauth2:{{ gitlab_token }}@git.thm.de/{{ gitlab_username }}/cloud-project.git"
+git_branch: "master"
+
+# MongoDB User
+mongo_user: "admin"
+mongo_password: "password"
