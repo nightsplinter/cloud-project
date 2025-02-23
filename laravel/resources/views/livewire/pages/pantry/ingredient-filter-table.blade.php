@@ -65,7 +65,9 @@
                 @foreach ($items as $item)
                 <tr>
                     <td class="px-6 py-4 text-sm text-gray">
-                        {{$item['quantity'] . ' ' . (isset($item['unit_index']) ? $item['ingredient']['unit'][$item['unit_index']] : '')}}
+                        {{$item['quantity'] . ' ' . (isset($item['unit_index'])
+                        && isset($item['ingredient']['unit'][$item['unit_index']])
+                        ? $item['ingredient']['unit'][$item['unit_index']] : '')}}
                     </td>
                     <td class="px-6 py-4 text-sm text-gray">
                         {{$item['ingredient']['name']}}
