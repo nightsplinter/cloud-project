@@ -35,7 +35,7 @@
 
                 {{-- Steps --}}
                 <div class="bg-white rounded-xl shadow-sm p-6">
-                    <h2 class="text-2xl font-semibold mb-6">Zubereitung</h2>
+                    <h2 class="text-2xl font-semibold mb-6">Steps</h2>
                     <div class="space-y-6">
                         @if (is_string($recipe->steps))
                             <div class="flex gap-1">
