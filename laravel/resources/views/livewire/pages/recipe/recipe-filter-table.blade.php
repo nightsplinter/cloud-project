@@ -14,8 +14,57 @@
                     placeholder="Search by recipe name...">
             </div>
 
-            <div></div>
-            <div></div>
+        <!-- Pantry-Ingredients Filter -->
+        <div class="relative">
+            <label class="block text-sm font-medium text-gray-700 mb-2">
+                Pantry Ingredients
+            </label>
+
+            <button type="button"
+                wire:click="togglePantryDropdown"
+                class="w-full rounded-lg border border-gray-300 px-4 py-2 flex justify-between items-center">
+
+                <span>
+                    Select ingredients
+                    @if(!empty($pantry))
+                        <span class="text-primary">({{ count($pantry) }} selected)</span>
+                    @endif
+                </span>
+                <svg
+                    class="w-5 h-5 transform transition-transform duration-200 {{ $isOpen ? 'rotate-180' : '' }}"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+            </button>
+
+            <div
+                @click.outside="$wire.set('isOpen', false)"
+                class="absolute top-full left-0 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg z-50
+                transition-opacity duration-200 ease-in-out {{ !$isOpen ? 'opacity-0 pointer-events-none' : 'opacity-100' }}">
+                <div class="max-h-60 overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-200">
+                    @if(empty($pantryOptions))
+                        <div class="px-4 py-2 text-gray-600">No pantry ingredients found.</div>
+                    @endif
+
+                    @foreach($pantryOptions as $value => $label)
+                        <label class="flex items-center px-4 py-2 cursor-pointer hover:bg-gray-100">
+                            <input
+                                type="checkbox"
+                                wire:model="pantry"
+                                value="{{ $label['base64Id'] }}"
+                                class="rounded border-gray-300 text-primary focus:ring-primary mr-2"
+                            >
+                            <span>{{ $label['label'] }}</span>
+                        </label>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+
+
+        <div></div>
 
             <!-- Servings Filter -->
             <div>

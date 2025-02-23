@@ -7,6 +7,10 @@ use Illuminate\Contracts\View\View;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Livewire\Component;
 use Livewire\WithPagination;
+use App\Models\PantryItem;
+use Illuminate\Support\Collection;
+use MongoDB\BSON\ObjectId;
+use Exception;
 
 class RecipeFilterTable extends Component
 {
@@ -24,37 +28,51 @@ class RecipeFilterTable extends Component
         '7+' => '7+ Persons'
     ];
 
-    /** @var array<int, string> */
+    /** @var array<string, string> */
     public array $categoryOptions = [];
+
+    /** @var array<mixed> */
+    public array $pantryOptions = [];
 
     /** @var array<string, string> */
     public array $sortOptions = [
         'matching_desc' => 'Matching Ingredients (High to Low)',
         'matching_asc' => 'Matching Ingredients (Low to High)',
         'similar_desc' => 'Similar Ingredients (High to Low)',
-        'similar_asc' => 'Similar Ingredients (Low to High)'
+        'similar_asc' => 'Similar Ingredients (Low to High)',
     ];
 
     public string $search = '';
-
     public string $servings = 'all';
     public string $category = 'All';
     public string $sort = 'matching_desc';
+
+    /** @var array<string> */
+    public array $pantry = [];
     public bool $noResults = false;
 
-    /** @var array<string, array<string, string>> */
+    public bool $isOpen = false;
+
+    public function togglePantryDropdown(): void
+    {
+        $this->isOpen = !$this->isOpen;
+    }
+
+    /** @var array<string, array<string, mixed>> */
     protected $queryString = [
         'search' => ['except' => ''],
         'servings' => ['except' => 'all'],
         'category' => ['except' => 'All'],
-        'sort' => ['except' => 'matching_desc']
+        'sort' => ['except' => 'matching_desc'],
+        'pantry' => ['except' => [], 'as' => 'ingredients'],
     ];
 
     public function mount(): void
     {
-        /** @var array<int, string> */
+        /** @var array<string, string> */
         $categories = Recipe::pluck('categories')
             ->flatten()
+            ->filter()
             ->unique()
             ->sort()
             ->values()
@@ -62,6 +80,41 @@ class RecipeFilterTable extends Component
 
         $this->categoryOptions = $categories;
         array_unshift($this->categoryOptions, 'All');
+
+        /** @var Collection<int, PantryItem> $pantryItems */
+        $pantryItems = PantryItem::where('user_id', auth()->id())
+            ->with('ingredient')
+            ->orderBy('expiration_date', 'asc')
+            ->get();
+
+        if ($pantryItems->count() > 0) {
+
+            $this->pantryOptions = $pantryItems->values()
+                ->map(function (PantryItem $pantryItem, $index) {
+
+                    if (!isset($pantryItem['ingredient'])) {
+                        throw new Exception('Ingredient not found');
+                    }
+
+                    /** @phpstan-ignore-next-line */ // Needed for the ingredient property
+                    $name = $pantryItem['ingredient']['name'];
+
+                    /** @var string|null */ // Needed for the ingredient property
+                    $expDate = $pantryItem->expiration_date;
+
+                    /** @phpstan-ignore-next-line */ // Needed for the ingredient property
+                    $id = $pantryItem['ingredient']['_id'];
+                    /** @phpstan-ignore-next-line */
+                    $base64Id = base64_encode((string) $id);
+
+                    return [
+                        'base64Id' => $base64Id,
+                        'label' => $expDate /** @phpstan-ignore-next-line */ // Needed for the ingredient property
+                            ? $name . ' (' . 'EXP: ' . $expDate . ')'
+                            : $name
+                    ];
+                })->toArray();
+        }
     }
 
     /**
@@ -71,7 +124,10 @@ class RecipeFilterTable extends Component
      */
     public function updating(string $name): void
     {
-        if (in_array($name, ['search', 'servings', 'category', 'sort'])) {
+        if (in_array(
+            $name,
+            ['search', 'servings', 'category', 'sort']
+        )) {
             $this->resetPage();
         }
     }
@@ -92,6 +148,22 @@ class RecipeFilterTable extends Component
         // Apply search filter
         if (!empty($this->search)) {
             $query->where('name', 'like', '%' . $this->search . '%');
+        }
+
+        // Apply pantry items filter
+        if (!empty($this->pantry)) {
+            $ids = array_map(fn ($pantryItem) =>
+                base64_decode($pantryItem), $this->pantry);
+
+            foreach (array_unique($ids) as $id) {
+                /** @phpstan-ignore-next-line */
+                $query->whereRaw([
+                    '$or' => array_map(fn ($index)
+                    => ['ingredients.' . $index . '.0' =>
+                    ['$all' => [new ObjectId($id)]]
+                    ], range(0, 100))
+                ]);
+            }
         }
 
         // Apply servings filter
