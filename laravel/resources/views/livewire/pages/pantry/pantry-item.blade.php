@@ -17,44 +17,47 @@
         <div class="mb-6">
             <label for="name" class="text-sm text-gray-600">Ingredient</label>
             <input
-                type="text"
-                id="name"
-                required
-                min="2"
-                max="255"
-                wire:model.live="name"
-                wire:keydown.arrow-down="incrementHighlight"
-                wire:keydown.arrow-up="decrementHighlight"
-                wire:keydown.enter="selectIngredient"
-                wire:blur="resetIfInvalid"
-                autocomplete="off"
-                class="px-4 py-2 rounded-lg border w-full focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
-                placeholder="Search for an ingredient..."
-            />
-            <div>@error('name') <span class="text-red-500">{{ $message }}</span> @enderror</div>
+            type="text"
+            id="name"
+            required
+            min="2"
+            max="255"
+            wire:model.live="name"
+            wire:keydown.arrow-down="incrementHighlight"
+            wire:keydown.arrow-up="decrementHighlight"
+            wire:keydown.enter="selectIngredient"
+            wire:blur="resetIfInvalid"
+            autocomplete="off"
+            class="px-4 py-2 rounded-lg border w-full focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary"
+            placeholder="Search for an ingredient..."
+        />
+        <div class="text-gray text-xs">Please select an item with the arrow keys and press enter to select</div>
+        <div>@error('name') <span class="text-red">{{ $message }}</span> @enderror</div>
 
-            {{-- Dropdown --}}
-            @if(!empty($name) && !$isEntrySelected)
-                <div class="absolute z-10 bg-white border rounded-lg shadow-md mt-1">
-                    @if(!empty($ingredients))
-                        @foreach($ingredients as $index => $ingredient)
-                            <div class="px-4 py-2 cursor-pointer {{ $highlightIndex === $index ? 'bg-lightgray' : '' }}"
-                                title="{{$ingredient['name']}}">
-                                <div class="flex items-center">
-                                    {{-- Optional Image --}}
-                                    @if(!empty($ingredient['picture']))
-                                        <img src="{{ $ingredient['picture'] }}" alt="{{ $ingredient['name'] }}" class="w-6 h-6 rounded-full mr-2">
-                                    @endif
-                                    {{ $ingredient['name'] }}
-                                </div>
-                            </div>
-                        @endforeach
-                    @else
-                        <div class="px-4 py-2 text-gray-600">No results found</div>
-                    @endif
+        {{-- Dropdown --}}
+        @if(!empty($name) && !$isEntrySelected)
+        <div class="absolute z-10 bg-white border rounded-lg shadow-md mt-1">
+            @if(!empty($ingredients))
+                @foreach($ingredients as $index => $ingredient)
+                <div
+                    class="px-4 py-2 cursor-pointer {{ $highlightIndex === $index ? 'bg-lightgray' : '' }}"
+                    title="{{$ingredient['name']}}">
+                    <div class="flex items-center">
+                        {{-- Optional Image --}}
+                        @if(!empty($ingredient['picture']))
+                            <img src="{{ $ingredient['picture'] }}" alt="{{ $ingredient['name'] }}" class="w-6 h-6 rounded-full mr-2">
+                        @endif
+                        {{ $ingredient['name'] }}
+                    </div>
                 </div>
+                @endforeach
+            @else
+                <div class="px-4 py-2 text-gray-600">No results found</div>
             @endif
         </div>
+        @endif
+        </div>
+
         <div class="mb-6 flex space-x-4">
             <div class="flex-1">
                 <label for="quantity" class="text-sm text-gray-600">Quantity</label>

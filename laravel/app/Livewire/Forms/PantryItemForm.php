@@ -29,7 +29,7 @@ class PantryItemForm extends Component
     /**
      * The ingredients that match the search query.
      *
-     * @var array<array{name: string, picture: string, _id: string, unit: array<string>}>
+     * @var array<array{name: string, picture: string, _id: string, unit: array<string>|null}>
      */
     public array $ingredients = [];
 
@@ -101,6 +101,8 @@ class PantryItemForm extends Component
             return;
         }
 
+        $value = mb_strtolower($value);
+
         /**
          * @var array<array{name: string, picture: string, _id: string, unit: array<string>}>
          */
@@ -111,8 +113,8 @@ class PantryItemForm extends Component
             ->get()
             ->toArray();
 
-        $this->ingredients = $ingredients;
-        $this->highlightIndex = 0;
+        $this->ingredients = collect($ingredients)->sortBy(fn ($ingredients) => levenshtein($ingredients['name'], $value))->values()->all();
+
     }
 
     public function incrementHighlight(): void
@@ -131,13 +133,15 @@ class PantryItemForm extends Component
 
     public function selectIngredient(): void
     {
-        $index = $this->highlightIndex;
-
-        if (isset($this->ingredients[$index])) {
-            $ingredient = $this->ingredients[$index];
+        $selectedIndex = $this->highlightIndex;
+        if (isset($this->ingredients[$selectedIndex])) {
+            $ingredient = $this->ingredients[$selectedIndex];
             $this->name = $ingredient['name'];
             $this->isEntrySelected = true;
-            $this->units = $ingredient['unit'];
+
+            if (null !== $ingredient['unit']) {
+                $this->units = $ingredient['unit'];
+            }
         }
     }
 
