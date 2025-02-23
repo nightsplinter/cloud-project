@@ -1,0 +1,213 @@
+---
+- name: Deploy Laravel Application
+  hosts: recipe_finder_vm
+  become: true
+  vars:
+    web_group: www-data
+    web_user: www-data
+    deploy_user: user
+
+  tasks:
+    - name: Update system packages
+      apt:
+        update_cache: yes
+        upgrade: yes
+
+    - name: Install Docker Compose dependencies
+      apt:
+        name:
+          - curl
+          - git
+        state: present
+      become: yes
+
+    - name: Ensure correct directory ownership
+      file:
+        path: "{{ project_path }}"
+        owner: "{{ deploy_user }}"
+        group: "{{ web_group }}"
+        mode: '0755'
+        recurse: yes
+        state: directory
+
+    - name: Add Git safe directory
+      become_user: "{{ deploy_user }}"
+      git_config:
+        name: safe.directory
+        scope: global
+        value: "{{ project_path }}"
+
+    - name: Clone/update repository
+      become_user: "{{ deploy_user }}"
+      git:
+        repo: "{{ gitlab_repo_url }}"
+        dest: "{{ project_path }}"
+        version: "{{ git_branch }}"
+        force: yes
+        accept_hostkey: yes
+      register: git_status
+
+    - name: Remove docker-compose file
+      command: rm -f "{{ laravel_path }}/docker-compose.yml"
+      when: git_status.changed
+
+    - name: Copy docker-compose file
+      template:
+        src: docker/templates/docker-compose.prod.yml.j2
+        dest: "{{ laravel_path }}/docker-compose.yml"
+        owner: "{{ deploy_user }}"
+        group: "{{ web_group }}"
+        mode: '0600'
+
+    - name: Create docker templates directory
+      file:
+        path: "{{ laravel_path }}/docker"
+        state: directory
+        owner: "{{ deploy_user }}"
+        group: "{{ web_group }}"
+        mode: '0755'
+
+    - name: Copy Dockerfile
+      template:
+        src: docker/templates/Dockerfile.j2
+        dest: "{{ laravel_path }}/Dockerfile"
+        owner: "{{ deploy_user }}"
+        group: "{{ web_group }}"
+        mode: '0644'
+
+    - name: Copy .env file
+      template:
+        src: .env.j2
+        dest: "{{ laravel_path }}/.env"
+        owner: "{{ deploy_user }}"
+        group: "{{ web_group }}"
+        mode: '0644'
+
+    - name: Set storage directory permissions
+      file:
+        path: "{{ item }}"
+        state: directory
+        recurse: yes
+        owner: "{{ web_user }}"
+        group: "{{ web_group }}"
+        mode: '0775'
+      with_items:
+        - "{{ laravel_path }}/storage"
+        - "{{ laravel_path }}/bootstrap/cache"
+
+    - name: Create nginx configuration directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ deploy_user }}"
+        group: "{{ web_group }}"
+        mode: '0755'
+      with_items:
+        - "{{ laravel_path }}/docker"
+        - "{{ laravel_path }}/docker/nginx"
+        - "{{ laravel_path }}/docker/nginx/conf.d"
+        - "{{ laravel_path }}/docker/nginx/ssl"
+      become: yes
+
+    - name: Copy nginx configuration
+      template:
+        src: docker/templates/nginx-default.conf.j2
+        dest: "{{ laravel_path }}/docker/nginx/conf.d/default.conf"
+        owner: "{{ deploy_user }}"
+        group: "{{ web_group }}"
+        mode: '0644'
+      become: yes
+
+    - name: Ensure Docker is running
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Install Docker Compose
+      get_url:
+        url: https://github.com/docker/compose/releases/download/v2.24.5/docker-compose-linux-x86_64
+        dest: /usr/local/bin/docker-compose
+        mode: '0755'
+      become: yes
+
+    - name: Create symlink for docker-compose
+      file:
+        src: /usr/local/bin/docker-compose
+        dest: /usr/bin/docker-compose
+        state: link
+      become: yes
+
+    - name: Build Docker images
+      command: docker-compose -f docker-compose.yml build
+      args:
+        chdir: "{{ laravel_path }}"
+
+    - name: Ensure node_modules directory exists with correct permissions
+      file:
+        path: "{{ laravel_path }}/node_modules"
+        state: directory
+        mode: '0755'
+        owner: "{{ deploy_user }}"
+        group: "{{ web_group }}"
+        recurse: yes
+      become: yes
+
+    - name: Create SSL directory
+      file:
+        path: "{{ laravel_path }}/docker/nginx/ssl"
+        state: directory
+        mode: '0755'
+
+    - name: Generate self-signed SSL certificate
+      command: >
+        openssl req -x509 -nodes -days 365 -newkey rsa:2048
+        -keyout {{ laravel_path }}/docker/nginx/ssl/private.key
+        -out {{ laravel_path }}/docker/nginx/ssl/certificate.crt
+        -subj "/C=DE/ST=Hessen/L=Giessen/O=THM/CN=localhost"
+      args:
+        creates: "{{ laravel_path }}/docker/nginx/ssl/certificate.crt"
+
+    - name: Set ownership of Laravel directory
+      file:
+        path: "{{ laravel_path }}"
+        state: directory
+        owner: "{{ ansible_user }}"
+        group: "{{ ansible_user }}"
+        recurse: yes
+      become: yes
+
+    - name: Run Docker Compose up
+      command: docker-compose -f docker-compose.yml up -d
+      args:
+        chdir: "{{ laravel_path }}"
+      environment:
+        WWWGROUP: "1000"
+        WWWUSER: "1000"
+      when: git_status.changed
+
+    - name: Initialize Laravel application
+      block:
+        - name: Set Ownership of Laravel storage directory
+          command: docker exec -u root web-app chown -R www-data:www-data /var/www/html/storage
+          when: git_status.changed
+
+        - name: Generate Laravel key
+          command: docker exec web-app php artisan key:generate
+          when: git_status.changed
+
+        - name: Run Laravel migrations
+          command: docker exec web-app php artisan migrate --force
+          when: git_status.changed
+
+        - name: Clear Laravel cache
+          command: docker exec web-app php artisan cache:clear
+          when: git_status.changed
+
+        - name: Cache Laravel configuration
+          command: docker exec web-app php artisan config:cache
+          when: git_status.changed
+
+        - name: Cache Laravel routes
+          command: docker exec web-app php artisan route:cache
+          when: git_status.changed

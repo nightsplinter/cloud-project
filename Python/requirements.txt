@@ -1,0 +1,9 @@
+pandas
+google-cloud-bigquery
+google-cloud-storage
+kaggle
+apache_beam
+kagglehub
+db-dtypes
+dash
+plotly

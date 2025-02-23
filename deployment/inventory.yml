@@ -1,0 +1,10 @@
+all:
+  children:
+    recipe_finder_vm:
+      hosts:
+        recipe_finder_vm:
+          ansible_connection: ssh
+          ansible_host: 10.48.19.194
+          ansible_user: user
+          ansible_ssh_private_key_file: ~/.ssh/id_ed25519
+          ansible_become_pass: "{{ vm_password }}"

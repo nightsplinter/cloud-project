@@ -1,3 +1,46 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+@font-face {
+    font-family: "Inria Serif";
+    src: url("../fonts/InriaSerif-Regular.ttf") format('truetype');
+    font-weight: 400;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: "Inria Serif";
+    src: url("../fonts/InriaSerif-Bold.ttf") format('truetype');
+    font-weight: 700;
+    font-style: bold;
+  }
+
+  @font-face {
+    font-family: "Inria Serif";
+    src: url("../fonts/InriaSerif-Italic.ttf") format('truetype');
+    font-weight: 400;
+    font-style: italic;
+  }
+
+  @font-face {
+    font-family: "Inria Serif";
+    src: url("../fonts/InriaSerif-BoldItalic.ttf") format('truetype');
+    font-weight: 300;
+    font-style: bold;
+  }
+
+  @font-face {
+    font-family: "Inria Serif";
+    src: url("../fonts/InriaSerif-Light.ttf") format('truetype');
+    font-weight: 300;
+    font-style: light;
+  }
+
+  @font-face {
+    font-family: "Inria Serif";
+    src: url("../fonts/InriaSerif-LightItalic.ttf") format('truetype');
+    font-weight: 300;
+    font-style: italic;
+  }

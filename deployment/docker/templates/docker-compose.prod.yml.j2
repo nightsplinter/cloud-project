@@ -1,0 +1,90 @@
+services:
+  web-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: web-app
+    container_name: web-app
+    environment:
+      PHP_OPCACHE_ENABLE: 1
+      PHP_OPCACHE_VALIDATE_TIMESTAMPS: 0
+    volumes:
+      - ./storage:/var/www/html/storage
+    networks:
+      - sail
+    depends_on:
+      - pgsql
+      - mongodb
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+
+  nginx:
+    image: nginx:alpine
+    container_name: nginx
+    ports:
+      - "8443:443"
+      - "8080:80"
+    volumes:
+      - '.:/var/www/html'
+      - ./docker/nginx/conf.d:/etc/nginx/conf.d
+      - ./docker/nginx/ssl:/etc/nginx/ssl
+    networks:
+      - sail
+    depends_on:
+      - web-app
+    restart: unless-stopped
+
+  pgsql:
+    image: 'postgres:17.1'
+    container_name: pgsql
+    ports:
+      - '${FORWARD_DB_PORT:-5432}:5432'
+    environment:
+      PGPASSWORD: '${DB_PASSWORD:-secret}'
+      POSTGRES_DB: '${DB_DATABASE}'
+      POSTGRES_USER: '${DB_USERNAME}'
+      POSTGRES_PASSWORD: '${DB_PASSWORD:-secret}'
+    volumes:
+      - 'pgsql-data:/var/lib/postgresql/data'
+    restart: unless-stopped
+    networks:
+      - sail
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 1G
+
+  mongodb:
+    image: mongo:6.0
+    container_name: mongodb_live
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: geheim
+      MONGO_INITDB_DATABASE: 'recipes_and_ingredients'
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 2G
+
+volumes:
+  pgsql-data:
+    driver: local
+  mongo_data:
+    driver: local
+
+networks:
+  sail:
+    name: sail
+    driver: bridge

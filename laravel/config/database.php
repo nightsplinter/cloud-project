@@ -112,6 +112,25 @@ return [
             // 'trust_server_certificate' => env('DB_TRUST_SERVER_CERTIFICATE', 'false'),
         ],
 
+        'mongodb' => [
+            'driver' => 'mongodb',
+            'dsn' => 'mongodb://'
+                . env('MONGODB_USERNAME', 'admin')
+                . ':'
+                . env('MONGODB_PASSWORD', 'password')
+                . '@'
+                . env('MONGODB_HOST', 'mongodb')
+                . ':'
+                . env('FORWARD_MONGODB_PORT', '27017')
+                . '/?directConnection=true',
+            'database' => env('MONGODB_DATABASE', 'recipes_and_ingredients'),
+        ],
+        'bigquery' => [
+            'driver' => 'bigquery',
+            'project_id' => env('GOOGLE_CLOUD_PROJECT_ID'),
+            'dataset' => env('BIGQUERY_DATASET'),
+            'location' => env('BIGQUERY_LOCATION', 'EU'),
+        ],
     ],
 
     /*
@@ -147,7 +166,7 @@ return [
 
         'options' => [
             'cluster' => env('REDIS_CLUSTER', 'redis'),
-            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_database_'),
+            'prefix' => env('REDIS_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_') . '_database_'),
         ],
 
         'default' => [

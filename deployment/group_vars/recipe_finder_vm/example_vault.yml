@@ -1,0 +1,6 @@
+# Password for the VM
+vm_password: ""
+
+# Gitlab variables
+gitlab_username: ""
+gitlab_token: ""
