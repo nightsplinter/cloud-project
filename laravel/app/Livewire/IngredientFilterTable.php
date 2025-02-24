@@ -6,6 +6,8 @@ use App\Models\PantryItem;
 use Illuminate\Contracts\View\View;
 use Livewire\Component;
 use Livewire\WithPagination;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 
 class IngredientFilterTable extends Component
 {
@@ -132,24 +134,18 @@ class IngredientFilterTable extends Component
 
         }
 
-        /** @var int */
-        $page = request()->get('page', 1);
-
-        /** @var int */
+        $page = Paginator::resolveCurrentPage() ?: 1;
         $perPage = 10;
-
-        $items = new \Illuminate\Pagination\LengthAwarePaginator(
+        $paginatedItems = new LengthAwarePaginator(
             $items->forPage($page, $perPage),
-            $items->count(),
-            $perPage,
-            $page,
-            ['path' => request()->url()]
+            $items->count(), $perPage, $page,
+            ['path' => Paginator::resolveCurrentPath()]
         );
 
         $this->noResults = $items->isEmpty();
 
         return view('livewire.pages.pantry.ingredient-filter-table', [
-            'items' => $items,
+            'items' => $paginatedItems,
         ]);
     }
 
