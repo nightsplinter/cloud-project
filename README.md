@@ -1,9 +1,11 @@
 # Cloud Computing und Big Data Projekt
 
-
 # Projektstruktur
 
 - `laravel` - Quellcode für die Laravel-Webanwendung
+- `deployment` - Dateien für die Bereitstellung der Anwendung auf einer Linux-VM
+- `etl` - Quellcode für die lokale ETL-Pipeline
+- `Python` - Quellcode für die Cloud-Pipeline
 
 # Projekt Aufsetzen
 
@@ -79,12 +81,6 @@ Regeln von [Ruff](https://docs.astral.sh/ruff/) für den Linter und Formatter in
 make test
 ```
 
-2. Überprüfen Sie die Testabdeckung mit dem folgenden Befehl:
-
-```bash
-make test-coverage
-```
-
 
 ## Cloud Projekt starten
 
@@ -116,4 +112,3 @@ Führe app.py aus: Sobald du im richtigen Verzeichnis bist, kannst du das Skript
 python app.py
 ```
 "Dash is running on http://127.0.0.1:8050/"
-

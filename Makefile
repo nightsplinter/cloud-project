@@ -1,7 +1,6 @@
 env           ?= $(shell basename `pwd`)
 composefile = ./laravel/docker-compose.yml
 sail = cd laravel && ./vendor/bin/sail
-codeCoveragePercent = 60
 
 .PHONY: help
 .DEFAULT_GOAL := help
@@ -36,10 +35,12 @@ vite-build: ## build frontend
 status: ## show status of containers
 	$(sail) ps
 
-up-new: stop clean ## cleanup all: fresh git, fresh data, fresh containers
+up-new: ## cleanup all: fresh git, fresh data, fresh containers
+	stop clean
 	git fetch -a
 	git reset --hard origin/$(shell git rev-parse --abbrev-ref HEAD) || true
 	cd laravel && cp .env.example .env && composer install
+	cd larastanm && chmod -R g+w storage bootstrap/cache
 	cd laravel && npm install
 	make rebuild
 
@@ -58,9 +59,6 @@ migrate-fresh: ## setup new database with seeder data
 
 test: ## run tests
 	$(sail) test
-
-test-coverage: ## run tests with coverage
-	$(sail) test --coverage --min=$(codeCoveragePercent)
 
 # Code formatting Laravel
 
