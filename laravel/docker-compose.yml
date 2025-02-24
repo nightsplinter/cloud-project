@@ -60,26 +60,29 @@ services:
         networks:
             - sail
     mongodb:
-        image: 'mongodb/mongodb-atlas-local:latest'
-        container_name: mongodb
-        environment:
-            - 'MONGODB_INITDB_ROOT_USERNAME=${MONGODB_USERNAME:-}'
-            - 'MONGODB_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD:-}'
-            - 'MONGODB_DATABASE=${MONGODB_DATABASE:-my_database}'
-        volumes:
-            - 'sail-mongodb:/data/db'
-        ports:
-            - '${FORWARD_MONGODB_PORT:-27017}:27017'
-        networks:
-            - sail
-        healthcheck:
-            test:
-                - CMD
-                - mongosh
-                - 'mongodb://localhost:27017/admin'
-                - '--eval=db.runCommand({ping:1})'
-            retries: 3
-            timeout: 5s
+      image: 'mongo:latest'
+      container_name: mongodb
+      environment:
+        - 'MONGO_INITDB_ROOT_USERNAME=${MONGODB_USERNAME:-admin}'
+        - 'MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD:-password}'
+        - 'MONGO_INITDB_DATABASE=${MONGODB_DATABASE:-my_database}'
+      volumes:
+        - 'sail-mongodb:/data/db'
+        - 'sail-mongodb-config:/data/configdb'
+      ports:
+        - '${FORWARD_MONGODB_PORT:-27017}:27017'
+      networks:
+        - sail
+      healthcheck:
+        test:
+          - CMD
+          - mongosh
+          - '--eval=db.adminCommand("ping")'
+        retries: 3
+        timeout: 5s
+        interval: 10s
+        start_period: 30s
+
     adminer:
       image: dockette/adminer:full
       container_name: adminer
@@ -96,6 +99,8 @@ networks:
         driver: bridge
 volumes:
     sail-pgsql:
+        driver: local
+    sail-mongodb-config:
         driver: local
     sail-mongodb:
         driver: local
