@@ -125,11 +125,12 @@
                                 <span class="flex items-center gap-2">
                                     <div class="w-8 h-8">
                                         @foreach($recipe->ingredient_pictures as $key => $picture)
-                                            @if(!is_null($picture) && str_contains($ingredient, $key))
+                                            @if(!is_null($picture) && !empty($picture) &&
+                                                str_contains($ingredient, $key))
                                                 <div class="w-full h-full rounded-full border border-lightgray">
                                                     <img src="{{ $picture }}"
-                                                         alt="{{ $ingredient }}"
-                                                         title="{{ $ingredient }}"
+                                                         alt="Image of an ingredient"
+                                                         title="Image of an ingredient"
                                                          class="w-full h-full rounded-full object-cover">
                                                 </div>
                                                 @break

@@ -6,7 +6,6 @@ use App\Models\MongoDB\Ingredient;
 use App\Models\PantryItem;
 use Illuminate\View\View;
 use Livewire\Component;
-use Illuminate\Support\Facades\Date;
 
 /**
  * This class is a Livewire component that is used to create or edit a pantry item.
@@ -63,8 +62,8 @@ class PantryItemForm extends Component
 
             if (null !== $item->expiration_date) {
 
-                $this->expiration_date = Date::parse($item->expiration_date)
-                    ->format('d.m.Y');
+                /** @phpstan-ignore-next-line */ // Ignoring the error because the expiration_date is a string
+                $this->expiration_date = $item->expiration_date;
             }
 
             if (null !== $item->quantity && is_int(value: $item->quantity)) {

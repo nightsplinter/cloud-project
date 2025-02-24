@@ -87,7 +87,7 @@ class IngredientFilterTable extends Component
                 break;
             case 'not-expiring':
                 $query->whereNotNull('expiration_date')
-                    ->whereDate('expiration_date', '>', $now->copy()->addDays(7));
+                    ->whereDate('expiration_date', '>', $now);
                 break;
             case 'none':
                 $query->whereNull('expiration_date');
@@ -107,21 +107,29 @@ class IngredientFilterTable extends Component
 
                 $ingredient = $ingredient->toArray();
 
-                /** @var array<int, string> */
+                /** @var array<int, string>|null */
                 $categories = $ingredient['categories'];
 
                 // Category Filter
-                if ('All' !== $this->category ||
-                    !in_array($this->category, $categories)) {
+                if ('All' !== $this->category && (
+                    null === $categories ||
+                    !in_array($this->category, $categories)
+                )) {
                     return false;
                 }
+
+                // Search Filter
 
                 /** @var string */
                 $name = $ingredient['name'];
 
-                return !(!empty($this->search) ||
-                    !str_contains(mb_strtolower($name), mb_strtolower($this->search)));
+                return empty($this->search)
+                    || str_contains(
+                        mb_strtolower($name),
+                        mb_strtolower($this->search)
+                    );
             });
+
         }
 
         /** @var int */
