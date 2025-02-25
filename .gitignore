@@ -28,6 +28,7 @@ etl/data/chunks/chunk_*
 # Other files/directories
 /.idea
 /.phpunit.cache
+.vite
 /node_modules
 /public/build
 /public/hot

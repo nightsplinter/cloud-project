@@ -35,14 +35,12 @@ vite-build: ## build frontend
 status: ## show status of containers
 	$(sail) ps
 
-up-new: ## cleanup all: fresh git, fresh data, fresh containers
-	stop clean
-	git fetch -a
+up-new: ## fresh git, fresh data, fresh containers
 	git reset --hard origin/$(shell git rev-parse --abbrev-ref HEAD) || true
 	cd laravel && cp .env.example .env && composer install
-	cd larastanm && chmod -R g+w storage bootstrap/cache
 	cd laravel && npm install
 	make rebuild
+	make vite-build
 
 clean: ## delete container + data volumes
 	docker compose -f $(composefile) down --rmi all -v || true
