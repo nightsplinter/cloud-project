@@ -52,8 +52,8 @@ class RecipeApiCommand extends Command
             return Command::FAILURE;
         }
 
-        if ($count > 5) {
-            $this->error('You can only fetch up to 5 recipes at a time.');
+        if ($count > 10) {
+            $this->error('You can only fetch up to 10 recipes at a time.');
             return Command::FAILURE;
         }
 
